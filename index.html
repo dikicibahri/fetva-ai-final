@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="logo_fetva-ai.png" type="image/x-icon">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fetva AI - Akıllı Dini Danışman</title>
+    <meta name="description" content="Diyanet İşleri Başkanlığı fetvalarını yapay zeka destekli arama ile keşfedin.">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <!-- Islamic Pattern Background -->
+    <div class="islamic-pattern"></div>
+    <div class="gradient-overlay"></div>
+
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar collapsed" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-brand">Geçmiş Sohbetler</div>
+                <button id="sidebar-close" class="sidebar-close-btn" aria-label="Kapat">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 6L6 18M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <button id="new-chat-sidebar-btn" class="new-chat-btn-full">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 5v14M5 12h14" />
+                </svg>
+                Yeni Sohbet Başlat
+            </button>
+
+            <div class="chat-list" id="chat-list">
+                <!-- Chat items will be injected here -->
+                <div class="chat-list-label">BUGÜN</div>
+            </div>
+
+            <div class="sidebar-footer">
+                <div class="sidebar-settings-panel">
+                    <!-- User Info (Hidden by default, shown by JS) -->
+                    <div class="sidebar-user-info" id="sidebar-user-info-display" style="display: none;">
+                        <div class="sidebar-avatar" id="sidebar-user-avatar">?</div>
+                        <div class="sidebar-user-details">
+                            <span class="sidebar-username" id="sidebar-username-text">Kullanıcı</span>
+                            <span class="sidebar-email" id="sidebar-email-text"></span>
+                        </div>
+                    </div>
+
+                    <div class="sidebar-toggle-wrapper">
+                        <div class="toggle-content">
+                            <img src="laubali_icon.png" alt="Laubali Mod" class="toggle-icon-img">
+                            <span>Laubali-Komik Mod</span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="sidebar-funny-mode">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main App Container -->
+        <div class="app-container">
+            <!-- Header -->
+            <header class="header">
+                <div class="logo-section">
+                    <button id="sidebar-toggle" class="menu-toggle" aria-label="Menüyü Aç">
+                        <span class="menu-line"></span>
+                        <span class="menu-line"></span>
+                        <span class="menu-line"></span>
+                    </button>
+
+                    <!-- Logo -->
+                    <div class="logo">
+                        <img src="logo_fetva-ai.png" alt="Fetva AI Logo" class="logo-image">
+                        <span class="logo-title">Fetva<span class="ai-text">AI</span></span>
+                    </div>
+                </div>
+
+                <div class="header-actions">
+                    <button id="new-chat-btn" class="action-btn" title="Yeni Sohbet">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 5v14M5 12h14" />
+                        </svg>
+                    </button>
+                    <button id="theme-toggle" class="theme-btn" aria-label="Temayı Değiştir">
+                        <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="5" />
+                            <path
+                                d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+                        </svg>
+                        <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                        </svg>
+                    </button>
+
+                    <a href="login.html" id="header-login-btn" class="header-login-btn primary">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18"
+                            height="18">
+                            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3" />
+                        </svg>
+                        Giriş Yap
+                    </a>
+
+                    <!-- User Profile Button (Visible when logged in) -->
+                    <div id="header-user-profile" class="header-profile-btn" style="display: none;">
+                        <button class="profile-btn-content" title="Hesap" id="user-profile-btn">
+                            <div class="user-avatar-small" id="header-user-avatar">?</div>
+                        </button>
+                        <!-- Dropdown Menu -->
+                        <div class="user-dropdown-menu" id="user-dropdown-menu">
+                            <div class="dropdown-user-info" id="dropdown-user-info">
+                                <span class="dropdown-username">Kullanıcı</span>
+                                <span class="dropdown-email">email@example.com</span>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <button class="dropdown-item" id="logout-btn">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18"
+                                    height="18">
+                                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
+                                </svg>
+                                Çıkış Yap
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content -->
+            <main class="main-content">
+                <!-- Welcome Section -->
+                <div id="welcome-section" class="welcome-section">
+                    <div class="welcome-logo">
+                        <img src="logo_fetva-ai.png" alt="Fetva AI" class="welcome-logo-img">
+                    </div>
+                    <h1 class="welcome-title">İlmihal & Fetva Arama</h1>
+                    <p class="welcome-description">
+                        Diyanet Fetva Kitabı, Ömer Nasuhi Bilmen İlmihali, Hadislerle İslam Kitabı ve TDV
+                        İlmihallerinden yapay zeka destekli arama
+                        yapın.
+                    </p>
+
+                    <div class="example-queries">
+                        <p class="example-label">Örnek Sorular</p>
+                        <div class="example-buttons">
+                            <button class="example-btn"
+                                data-query="Namaz kıldıktan sonra iç çamaşırda ıslaklık olursa ne yapmalıyım">Namaz
+                                sonrası
+                                ıslaklık görürsem ne yapmalıyım?</button>
+                            <button class="example-btn" data-query="Abdestimi unuttum namazım geçerli mi">Abdest almayı
+                                unuttum, namazım olur mu?</button>
+                            <button class="example-btn" data-query="Oruçluyken diş fırçalamak orucu bozar mı">Oruçluyken
+                                diş
+                                fırçalasam olur mu?</button>
+                            <button class="example-btn"
+                                data-query="Kadınlar özel günlerinde namaz kılabilir mi">Kadınlar
+                                adetliyken namaz kılabilir mi?</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Results Area -->
+                <div id="results-area" class="results-area"></div>
+            </main>
+
+            <!-- Search Bar (Fixed at Bottom) -->
+            <div class="search-container">
+                <div class="search-box">
+                    <input type="text" id="search-input" placeholder="Merak ettiğiniz dini konuyu sorun..."
+                        autocomplete="off">
+                    <button id="search-btn" class="search-btn" aria-label="Ara">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="22" y1="2" x2="11" y2="13" />
+                            <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                        </svg>
+                    </button>
+                </div>
+                <p class="search-hint">Diyanet Fetva Kitabı, Ömer Nasuhi Bilmen İlmihali, Hadislerle İslam ve TDV
+                    İlmihallerinden yapay zeka destekli veritabanı</p>
+            </div>
+
+            <!-- Footer -->
+            <footer class="app-footer">
+                <div class="footer-content">
+                    <p class="footer-text">© 2024 Fetva AI - Tüm hakları saklıdır.</p>
+                    <p class="footer-disclaimer">Bu uygulama resmi bir fetva makamı değildir. Görüşler kaynaklara dayalı
+                        olarak sunulmaktadır.</p>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <!-- Firebase Config -->
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBQagGmOrDnllJkPd3HxcbleU9jEakkDg4",
+            authDomain: "fetva-ai-7fee1.firebaseapp.com",
+            projectId: "fetva-ai-7fee1",
+            storageBucket: "fetva-ai-7fee1.firebasestorage.app",
+            messagingSenderId: "3870347784",
+            appId: "1:3870347784:web:62069dd6523bb49eacb7bd"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+    </script>
+
+    <script src="data.js"></script>
+    <script type="module" src="script.js"></script>
+</body>
+
+</html>
