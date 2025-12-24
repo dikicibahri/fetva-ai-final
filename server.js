@@ -1,87 +1,41 @@
-const http = require('http');
-const https = require('https');
-const fs = require('fs');
+const express = require('express');
 const path = require('path');
+const cors = require('cors');
+const fetch = require('node-fetch'); // npm install node-fetch@2
 
+const app = express();
 const PORT = process.env.PORT || 3000;
-const GROQ_API = 'api.groq.com';
 
-// MIME types
-const mimeTypes = {
-    '.html': 'text/html',
-    '.css': 'text/css',
-    '.js': 'application/javascript',
-    '.json': 'application/json',
-    '.png': 'image/png',
-    '.jpg': 'image/jpeg',
-    '.svg': 'image/svg+xml'
-};
+app.use(cors());
+app.use(express.json());
+app.use(express.static(__dirname));
 
-const server = http.createServer((req, res) => {
-    // CORS headers
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-
-    if (req.method === 'OPTIONS') {
-        res.writeHead(204);
-        res.end();
-        return;
-    }
-
-    // Proxy API requests
-    if (req.url === '/api/chat' && req.method === 'POST') {
-        let body = '';
-        req.on('data', chunk => body += chunk);
-        req.on('end', () => {
-            // KRİTİK DÜZELTME: Anahtarı sistemin gizli değişkenlerinden alıyoruz
-            const apiKey = process.env.GROQ_API_KEY;
-
-            const options = {
-                hostname: GROQ_API,
-                path: '/openai/v1/chat/completions',
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${apiKey}` // Artık Frontend'den beklemiyoruz!
-                }
-            };
-
-            const proxyReq = https.request(options, proxyRes => {
-                res.writeHead(proxyRes.statusCode, proxyRes.headers);
-                proxyRes.pipe(res);
-            });
-
-            proxyReq.on('error', err => {
-                res.writeHead(500);
-                res.end(JSON.stringify({ error: 'Proxy hatası: ' + err.message }));
-            });
-
-            proxyReq.write(body);
-            proxyReq.end();
+// API YOLU (İstek buraya gelecek)
+app.post('/api/chat', async (req, res) => {
+    const apiKey = process.env.GROQ_API_KEY;
+    
+    try {
+        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`
+            },
+            body: JSON.stringify(req.body)
         });
-        return;
+
+        const data = await response.json();
+        res.status(response.status).json(data);
+    } catch (error) {
+        res.status(500).json({ error: "Sunucu hatası: " + error.message });
     }
-
-    // Serve static files
-    let filePath = req.url === '/' ? '/index.html' : req.url;
-    filePath = path.join(__dirname, filePath);
-
-    const ext = path.extname(filePath);
-    const contentType = mimeTypes[ext] || 'text/plain';
-
-    fs.readFile(filePath, (err, content) => {
-        if (err) {
-            res.writeHead(404);
-            res.end('Dosya bulunamadı');
-        } else {
-            res.writeHead(200, { 'Content-Type': contentType });
-            res.end(content);
-        }
-    });
 });
 
-server.listen(PORT, () => {
-    console.log(`\n🕌 Fetva AI Sunucusu çalışıyor!`);
-    console.log(`📍 http://localhost:${PORT}\n`);
+// Diğer tüm istekleri index.html'e yönlendir
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+app.listen(PORT, () => {
+    console.log(`🚀 Sistem aktif: http://localhost:${PORT}`);
 });
