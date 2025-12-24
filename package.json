@@ -1,8 +1,7 @@
 {
+  "name": "fetva-ai",
+  "version": "1.0.0",
   "dependencies": {
-    "cors": "^2.8.5",
-    "express": "^5.2.1",
-    "node-fetch": "^2.7.0",
-    "pdf-extraction": "^1.0.2"
+    "node-fetch": "^2.6.7"
   }
 }
