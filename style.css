@@ -2341,3 +2341,126 @@ input:checked+.slider:before {
     width: 18px;
     height: 18px;
 }
+
+/* ==========================================
+   Feedback Buttons
+   ========================================== */
+
+.feedback-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-size: 1rem;
+}
+
+.feedback-btn:hover {
+    background: var(--bg-secondary);
+    border-color: var(--primary-green-light);
+    transform: translateY(-1px);
+}
+
+.feedback-btn.active {
+    background: var(--primary-green);
+    border-color: var(--primary-green);
+}
+
+.like-btn:hover,
+.like-btn.active {
+    background: #22c55e20;
+    border-color: #22c55e;
+}
+
+.dislike-btn:hover,
+.dislike-btn.active {
+    background: #ef444420;
+    border-color: #ef4444;
+}
+
+.regenerate-btn:hover {
+    background: #3b82f620;
+    border-color: #3b82f6;
+}
+
+.report-btn:hover,
+.report-btn.active {
+    background: #f59e0b20;
+    border-color: #f59e0b;
+}
+
+/* ==========================================
+   Toast Notification
+   ========================================== */
+
+.toast-notification {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-lg);
+    z-index: 10001;
+    opacity: 0;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.toast-notification.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* ==========================================
+   Sidebar Mobile Improvements
+   ========================================== */
+
+@media (max-width: 768px) {
+    .sidebar-footer {
+        padding: var(--space-sm) 0;
+    }
+
+    .sidebar-settings-panel {
+        gap: var(--space-sm);
+    }
+
+    .sidebar-toggle-wrapper {
+        padding: var(--space-sm);
+    }
+
+    .sidebar-user-info {
+        padding: var(--space-sm);
+    }
+
+    .sidebar-user-details {
+        font-size: 0.8rem;
+    }
+
+    .sidebar-avatar {
+        width: 28px;
+        height: 28px;
+        font-size: 0.75rem;
+    }
+
+    .toggle-icon-img {
+        width: 20px;
+        height: 20px;
+    }
+
+    .sidebar-toggle-wrapper span {
+        font-size: 0.8rem;
+    }
+
+    .chat-list {
+        max-height: calc(100vh - 280px);
+    }
+}
