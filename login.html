@@ -319,6 +319,17 @@
             // Re-attach event listener since innerHTML replaced it
             document.getElementById('toggle-form').addEventListener('click', () => toggleBtn.click());
         });
+
+        // Theme initialization for login page
+        (function initTheme() {
+            const savedTheme = localStorage.getItem('fetva-theme');
+            if (savedTheme) {
+                document.body.setAttribute('data-theme', savedTheme);
+            } else {
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                document.body.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+            }
+        })();
     </script>
 </body>
 
