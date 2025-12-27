@@ -2223,3 +2223,121 @@ input:checked+.slider:before {
         padding-bottom: 120px;
     }
 }
+
+/* ==========================================
+   Disclaimer Modal
+   ========================================== */
+
+.disclaimer-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    padding: var(--space-lg);
+    animation: fadeIn 0.3s ease;
+}
+
+.disclaimer-overlay.fade-out {
+    animation: fadeOut 0.3s ease forwards;
+}
+
+@keyframes fadeOut {
+    to {
+        opacity: 0;
+    }
+}
+
+.disclaimer-modal {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    max-width: 480px;
+    width: 100%;
+    text-align: center;
+    box-shadow: var(--shadow-lg);
+}
+
+.disclaimer-icon {
+    font-size: 3rem;
+    margin-bottom: var(--space-lg);
+}
+
+.disclaimer-modal h2 {
+    font-size: 1.5rem;
+    margin-bottom: var(--space-lg);
+    color: var(--text-primary);
+}
+
+.disclaimer-content {
+    text-align: left;
+    margin-bottom: var(--space-xl);
+    color: var(--text-secondary);
+    line-height: 1.7;
+}
+
+.disclaimer-content p {
+    margin-bottom: var(--space-md);
+}
+
+.disclaimer-accept-btn {
+    width: 100%;
+    padding: 1rem;
+    background: var(--primary-green);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.disclaimer-accept-btn:hover {
+    background: var(--primary-green-light);
+    transform: translateY(-1px);
+}
+
+/* ==========================================
+   Response Actions (WhatsApp Share, etc.)
+   ========================================== */
+
+.response-actions {
+    display: flex;
+    gap: var(--space-md);
+    margin-top: var(--space-lg);
+    padding-top: var(--space-lg);
+    border-top: 1px solid var(--border-color);
+}
+
+.whatsapp-share-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: 0.625rem 1rem;
+    background: #25D366;
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.whatsapp-share-btn:hover {
+    background: #128C7E;
+    transform: translateY(-1px);
+}
+
+.whatsapp-share-btn svg {
+    width: 18px;
+    height: 18px;
+}
