@@ -315,12 +315,22 @@ document.addEventListener('DOMContentLoaded', () => {
     function setupEventListeners() {
         themeToggle.addEventListener('click', toggleTheme);
         searchBtn.addEventListener('click', performSearch);
-        searchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') performSearch();
+
+        // Search on Enter (but allow Shift+Enter for newline in textarea)
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                performSearch();
+            }
         });
 
-        // Auto-capitalize first letter
+        // Auto-resize textarea and capitalize first letter
         searchInput.addEventListener('input', (e) => {
+            // Auto-resize
+            e.target.style.height = 'auto';
+            e.target.style.height = Math.min(e.target.scrollHeight, 150) + 'px';
+
+            // Auto-capitalize first letter
             if (e.target.value.length === 1) {
                 e.target.value = e.target.value.charAt(0).toUpperCase();
             }
@@ -544,6 +554,13 @@ _Bu yanıt Fetva AI uygulamasından alınmıştır. Kesin hükümler için müft
      * Handle report error button click
      */
     function handleReport(query, response) {
+        // Show confirmation dialog
+        const confirmed = confirm('Bu cevabı hatalı olarak bildirmek istediğinizden emin misiniz?\n\nHata raporu kaydedilecek ve incelenecektir.');
+
+        if (!confirmed) {
+            return; // User cancelled
+        }
+
         const report = {
             type: 'error_report',
             query: query,
@@ -990,7 +1007,7 @@ Bu kaynaklara dayanarak soruyu cevapla.`;
         responseCard.innerHTML = `
             <div class="ai-response-header">
                 <div class="ai-avatar">
-                    <img src="logo_fetva-ai.png" alt="Fetva AI" class="ai-avatar-img">
+                    <img src="Resimler/logo_fetva-ai.png" alt="Fetva AI" class="ai-avatar-img">
                 </div>
                 <span class="ai-name">Fetva AI</span>
                 <button class="copy-btn" data-text="${escapeHtml(aiResponse)}" title="Kopyala">
@@ -1053,7 +1070,7 @@ Bu kaynaklara dayanarak soruyu cevapla.`;
                     <span>⚠️</span>
                 </button>
                 <button class="whatsapp-share-btn" data-query="${escapeHtml(query)}" data-response="${escapeHtml(aiResponse)}" title="WhatsApp ile Paylaş">
-                    <img src="whatsapp icon.png" alt="WhatsApp" class="whatsapp-icon">
+                    <img src="Resimler/whatsapp icon.png" alt="WhatsApp" class="whatsapp-icon">
                 </button>
             </div>
         `;

@@ -1897,6 +1897,7 @@ body {
     gap: var(--space-sm);
     font-size: 0.9rem;
     font-weight: 500;
+    text-align: center;
     color: var(--text-primary);
 }
 
@@ -2333,13 +2334,14 @@ input:checked+.slider:before {
 }
 
 .whatsapp-share-btn:hover {
-    background: #128C7E;
+    background: transparent;
     transform: translateY(-1px);
+    scale: 1.1;
 }
 
 .whatsapp-share-btn svg {
-    width: 18px;
-    height: 18px;
+    width: 36px;
+    height: 36px;
 }
 
 /* ==========================================
