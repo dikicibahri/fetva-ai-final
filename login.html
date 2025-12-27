@@ -115,27 +115,30 @@
         }
 
         .google-btn {
-            background: white;
-            color: #333;
+            background: #2f4f4f;
+            color: #ffffff;
             border: 1px solid var(--border-color);
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 0.75rem;
-            padding: 0.8rem;
+            padding: 1.1rem;
             border-radius: 12px;
             cursor: pointer;
             font-weight: 500;
             transition: all var(--transition-fast);
+            max-width: 280px;
+            margin: 0 auto;
         }
 
         [data-theme="dark"] .google-btn {
-            background: #fff;
+            background: var(--primary-green);
             /* Google styling usually stays white */
         }
 
         .google-btn:hover {
-            background: #f1f1f1;
+            background: #528b8b;
+            transform: translateY(-1px);
         }
 
         .toggle-auth {
@@ -149,6 +152,10 @@
             color: var(--primary-green-light);
             cursor: pointer;
             font-weight: 600;
+        }
+
+        .toggle-link:hover {
+            text-decoration: underline;
         }
 
         .slider-checkbox {

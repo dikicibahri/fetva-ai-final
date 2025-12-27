@@ -18,7 +18,20 @@ const FUNNY_ENDINGS = [
     "Sormadan edemezsin değil mi? İşte bu yüzden burdayız! 📚",
     "Daha kolay bir soru yok muydu? Şaka şaka, buyur cevabın 😁",
     "Güzel soru! Ama bir dahakine biraz daha zorlayıcı olsun 🎯",
-    "Bunun cevabını bilmemen normal, öğrenmek için sordun ya işte o önemli 💪"
+    "Bunun cevabını bilmemen normal, öğrenmek için sordun ya işte o önemli 💪",
+    "Oooo bizimki yine dertlenmiş, gel bakayım yamacıma çözek şu işi 😉",
+    "Ya sen ne takıntılı çıktın be kardeşim, sal gitsin hallederiz 🤙",
+    "Bak bak sorulara bak, sanırsın mübarek atomu parçalıyor, rahat ol yaaa 😄",
+    "Hocam sen bu kafayla çok yaşamazsın, valla bak gel bir çayımı iç de anlatayım ☕",
+    "Yine mi sen? Sormasan hatrım kalırdı zaten, dökül bakalım neymiş derdin 😂",
+    "Aman efendim, gözlerimiz yollarda kaldı, nerelerdeydin sen? Söyle bakalım ne oldu 🤝",
+    "Bak şimdi, bu işin raconu şudur, dinle de bir şeyler öğren bari boş gitme 🧠",
+    "Ya sen sormaktan bıkmadın ben cevaplamaktan bıktım, neyse gel hadi gel 😊",
+    "Ohoo sen daha burada mısın? Ben çoktan hallettim o işi, izle şimdi... 😎",
+    "Valla bu soruyu sormak için çok düşündün mü? Şaka yapıyorum ya, gel çözüyoruz hemen 🎯",
+    "Bak buraya, bu işler öyle her sakallıyı deden sanmakla olmaz, doğrusunu biz söyleriz 💪",
+    "Yav arkadaş, senin bu soruların beni bitiriyor ama neyse ki sabırlı adamım, buyur... 📚",
+    "Yine mi karıştırdın ortalığı? Neyse, toparlamak yine bize düştü, anlat bakalım 🛠️",
 ];
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -435,6 +448,41 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        // Gratitude/Thank you detection - respond without searching sources
+        const gratitudePatterns = [
+            /^(teşekkür|teşekkürler|sağol|sağ ol|eyvallah|eyv)/i,
+            /^(allah razı olsun|rabbim razı olsun|hayırlı günler)/i,
+            /^(teşekkür ederim|teşekkür ederiz|çok teşekkürler)/i,
+            /^(iyi günler|iyi akşamlar|kolay gelsin)/i,
+            /^(allah'a emanet|haydi hoşçakal)/i
+        ];
+
+        const isGratitude = gratitudePatterns.some(pattern => pattern.test(query));
+
+        if (isGratitude) {
+            // Get a friendly response without searching sources
+            const gratitudeResponses = [
+                "Rica ederim! Başka sorunuz olursa her zaman buradayim 🤗",
+                "Ne demek, yardımcı olabildiysem ne mutlu bana! Allah'a emanet olun 🙏",
+                "Rica ederim, hayırlı günler dilerim! 🌙",
+                "Estafurullah, danışmak istediğiniz başka bir konu olursa beklerim ✌️",
+                "Ben teşekkür ederim! Sorularınız için kapım her zaman açık 📚"
+            ];
+            const randomResponse = gratitudeResponses[Math.floor(Math.random() * gratitudeResponses.length)];
+
+            // Clear input and show response
+            searchInput.value = '';
+            welcomeSection.style.display = 'none';
+            displayAIResponse(query, randomResponse, [], true);
+
+            // Add to conversation history
+            conversationHistory.push(
+                { role: 'user', content: query },
+                { role: 'assistant', content: randomResponse }
+            );
+            return;
+        }
+
         // Check query limit for non-logged-in users
         if (!currentUser) {
             if (queryCount >= MAX_FREE_QUERIES) {
@@ -658,13 +706,14 @@ Kurallar:
             systemPrompt += `
 8. Cevabın sonunda, konuyla ilgili kısa (~1-2 cümle), samimi, laubali ve esprili bir yorum ekle.
    Bu yorum biraz sivri dilli, arkadaşça ve komik olsun.
+   ÖNEMLİ: Sadece Türkçe karakterler kullan. Çince, Japonca veya başka dillerde karakter KULLANMA.
    ÖNEMLİ: Esprili yorumu cevaptan bir satır boşluk bırakarak yaz ve başına "---" koy.
    Örnek format:
    
    [Normal cevap burada biter.]
    
    ---
-   😄 Esprili yorum burada.`;
+   😄 Esprili yorum burada (sadece Türkçe).`;
         }
 
         const userPrompt = `Soru: ${userQuery}

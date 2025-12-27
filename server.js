@@ -13,7 +13,7 @@ app.use(express.static(__dirname));
 // API YOLU (İstek buraya gelecek)
 app.post('/api/chat', async (req, res) => {
     const apiKey = process.env.GROQ_API_KEY;
-    
+
     try {
         const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
             method: 'POST',
@@ -32,7 +32,7 @@ app.post('/api/chat', async (req, res) => {
 });
 
 // Diğer tüm istekleri index.html'e yönlendir
-app.get('*', (req, res) => {
+app.get('/{*path}', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
