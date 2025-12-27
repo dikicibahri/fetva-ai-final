@@ -2323,7 +2323,7 @@ input:checked+.slider:before {
     align-items: center;
     gap: var(--space-sm);
     padding: 0.625rem 1rem;
-    background: #25D366;
+    background: transparent;
     color: white;
     border: none;
     border-radius: var(--radius-md);
@@ -2359,14 +2359,30 @@ input:checked+.slider:before {
     border-radius: var(--radius-md);
     cursor: pointer;
     transition: all var(--transition-fast);
-    font-size: 1rem;
-    color: var(--text-primary);
+    padding: 0;
+    overflow: hidden;
+}
+
+.feedback-icon {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    transition: all var(--transition-fast);
+    /* By default icons are visible in dark mode (assume light icons) */
+}
+
+/* Light Mode Visibility fix - swap colors for icons */
+[data-theme="light"] .feedback-icon {
+    filter: invert(1) brightness(0.2);
 }
 
 .feedback-btn:hover {
     background: var(--bg-tertiary);
     border-color: var(--text-muted);
-    transform: translateY(-1px);
+}
+
+.feedback-btn:hover .feedback-icon {
+    transform: scale(1.2) translateY(-2px);
 }
 
 .feedback-btn.active {
@@ -2374,37 +2390,36 @@ input:checked+.slider:before {
     border-color: var(--primary-green);
 }
 
-.like-btn:hover,
-.like-btn.active {
-    background: rgba(34, 197, 94, 0.15);
-    border-color: #22c55e;
-    color: #22c55e;
+.feedback-btn.active .feedback-icon {
+    filter: none;
+    /* Keep original colors if active or handle appropriately */
+    transform: scale(1.1);
 }
 
-.dislike-btn:hover,
-.dislike-btn.active {
+.like-btn:hover {
+    background: rgba(34, 197, 94, 0.15);
+    border-color: #22c55e;
+}
+
+.dislike-btn:hover {
     background: rgba(239, 68, 68, 0.15);
     border-color: #ef4444;
-    color: #ef4444;
 }
 
 .regenerate-btn:hover {
     background: rgba(59, 130, 246, 0.15);
     border-color: #3b82f6;
-    color: #3b82f6;
 }
 
-.report-btn:hover,
-.report-btn.active {
+.report-btn:hover {
     background: rgba(245, 158, 11, 0.15);
     border-color: #f59e0b;
-    color: #f59e0b;
 }
 
 /* WhatsApp Icon Img */
 .whatsapp-icon {
-    width: 20px;
-    height: 20px;
+    width: 36px;
+    height: 36px;
     object-fit: contain;
 }
 

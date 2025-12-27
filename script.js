@@ -1058,16 +1058,16 @@ Bu kaynaklara dayanarak soruyu cevapla.`;
             </div>
             <div class="response-actions">
                 <button class="feedback-btn like-btn" data-query="${escapeHtml(query)}" data-response="${escapeHtml(aiResponse)}" title="Faydalı">
-                    <span>👍</span>
+                    <img src="Resimler/begenme_icon.png" alt="Faydalı" class="feedback-icon">
                 </button>
                 <button class="feedback-btn dislike-btn" data-query="${escapeHtml(query)}" data-response="${escapeHtml(aiResponse)}" title="Hatalı/Yetersiz">
-                    <span>👎</span>
+                    <img src="Resimler/begenmeme_icon.png" alt="Hatalı" class="feedback-icon">
                 </button>
                 <button class="feedback-btn regenerate-btn" data-query="${escapeHtml(query)}" title="Yeniden Oluştur">
-                    <span>🔄</span>
+                    <img src="Resimler/refresh.png" alt="Yeniden Oluştur" class="feedback-icon">
                 </button>
                 <button class="feedback-btn report-btn" data-query="${escapeHtml(query)}" data-response="${escapeHtml(aiResponse)}" title="Hata Bildir">
-                    <span>⚠️</span>
+                    <img src="Resimler/hata_icon.png" alt="Hata Bildir" class="feedback-icon">
                 </button>
                 <button class="whatsapp-share-btn" data-query="${escapeHtml(query)}" data-response="${escapeHtml(aiResponse)}" title="WhatsApp ile Paylaş">
                     <img src="Resimler/whatsapp icon.png" alt="WhatsApp" class="whatsapp-icon">
@@ -1405,7 +1405,7 @@ Bu kaynaklara dayanarak soruyu cevapla.`;
                     responseCard.innerHTML = `
                         <div class="ai-response-header">
                             <div class="ai-avatar">
-                                <img src="logo_fetva-ai.png" alt="Fetva AI" class="ai-avatar-img">
+                                <img src="Resimler/logo_fetva-ai.png" alt="Fetva AI" class="ai-avatar-img">
                             </div>
                             <span class="ai-name">Fetva AI</span>
                             <button class="copy-btn" data-text="${escapeHtml(msg.content)}" title="Kopyala">
@@ -1644,7 +1644,7 @@ Bu kaynaklara dayanarak soruyu cevapla.`;
         responseCard.innerHTML = `
             <div class="ai-response-header">
                 <div class="ai-avatar">
-                    <img src="logo_fetva-ai.png" alt="Fetva AI" class="ai-avatar-img">
+                    <img src="Resimler/logo_fetva-ai.png" alt="Fetva AI" class="ai-avatar-img">
                 </div>
                 <span class="ai-name">Fetva AI</span>
             </div>
