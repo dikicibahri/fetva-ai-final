@@ -24,6 +24,9 @@
     <div class="gradient-overlay"></div>
 
     <div class="app-layout">
+        <!-- Sidebar Overlay (for mobile) -->
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
         <!-- Sidebar -->
         <aside class="sidebar collapsed" id="sidebar">
             <div class="sidebar-header">
@@ -55,8 +58,13 @@
             </button>
 
             <div class="chat-list" id="chat-list">
-                <!-- Chat items will be injected here -->
-                <div class="chat-list-label">BUGÜN</div>
+                <!-- Chat items will be injected by JavaScript -->
+                <div class="chat-list-empty" id="chat-list-empty">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    <span>Henüz sohbet yok</span>
+                </div>
             </div>
 
             <div class="sidebar-footer">
@@ -69,6 +77,13 @@
                             <span class="sidebar-email" id="sidebar-email-text"></span>
                         </div>
                     </div>
+                    <!-- Sidebar Logout Button -->
+                    <button class="sidebar-logout-btn" id="sidebar-logout-btn" style="display: none;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
+                        </svg>
+                        Çıkış Yap
+                    </button>
                 </div>
             </div>
         </aside>
@@ -223,6 +238,9 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
     </script>
+
+    <!-- Database Service Layer -->
+    <script src="db.js"></script>
 
     <script src="data.js"></script>
     <script type="module" src="script.js"></script>

@@ -225,6 +225,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 sidebarFunnyToggle.checked = funnyMode;
             }
 
+            // Show sidebar logout button
+            const sidebarLogoutBtn = document.getElementById('sidebar-logout-btn');
+            if (sidebarLogoutBtn) sidebarLogoutBtn.style.display = 'flex';
+
             // Load Chat History
             loadChatList();
         } else {
@@ -233,6 +237,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (headerUserProfile) headerUserProfile.style.display = 'none';
 
             if (sidebarUserInfo) sidebarUserInfo.style.display = 'none';
+
+            // Hide sidebar logout button
+            const sidebarLogoutBtn = document.getElementById('sidebar-logout-btn');
+            if (sidebarLogoutBtn) sidebarLogoutBtn.style.display = 'none';
 
             // Clear chat list
             clearChatList();
@@ -348,22 +356,67 @@ document.addEventListener('DOMContentLoaded', () => {
             newChatSidebarBtn.addEventListener('click', startNewConversation);
         }
 
-        // Sidebar toggle with animation
+        // Sidebar toggle with animation and overlay
         const sidebarToggle = document.getElementById('sidebar-toggle');
         const sidebarClose = document.getElementById('sidebar-close');
         const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebar-overlay');
+        const sidebarLogoutBtn = document.getElementById('sidebar-logout-btn');
+
+        // Function to open sidebar
+        function openSidebar() {
+            if (sidebar) sidebar.classList.remove('collapsed');
+            if (sidebarToggle) sidebarToggle.classList.add('active');
+            if (sidebarOverlay) sidebarOverlay.classList.add('active');
+            document.querySelector('.app-layout')?.classList.add('sidebar-open');
+        }
+
+        // Function to close sidebar
+        function closeSidebar() {
+            if (sidebar) sidebar.classList.add('collapsed');
+            if (sidebarToggle) sidebarToggle.classList.remove('active');
+            if (sidebarOverlay) sidebarOverlay.classList.remove('active');
+            document.querySelector('.app-layout')?.classList.remove('sidebar-open');
+        }
 
         if (sidebarToggle && sidebar) {
             sidebarToggle.addEventListener('click', () => {
-                sidebar.classList.toggle('collapsed');
-                sidebarToggle.classList.toggle('active');
+                if (sidebar.classList.contains('collapsed')) {
+                    openSidebar();
+                } else {
+                    closeSidebar();
+                }
             });
         }
 
         if (sidebarClose && sidebar) {
-            sidebarClose.addEventListener('click', () => {
-                sidebar.classList.add('collapsed');
-                if (sidebarToggle) sidebarToggle.classList.remove('active');
+            sidebarClose.addEventListener('click', closeSidebar);
+        }
+
+        // Close sidebar when clicking overlay
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('click', closeSidebar);
+        }
+
+        // Sidebar logout button
+        if (sidebarLogoutBtn) {
+            sidebarLogoutBtn.addEventListener('click', async () => {
+                try {
+                    await auth.signOut();
+                    closeSidebar();
+                    currentChatId = null;
+                    conversationHistory = [];
+                    lastSources = [];
+                    funnyMode = false;
+                    resultsArea.innerHTML = '';
+                    welcomeSection.style.display = 'flex';
+                    clearChatList();
+                    updateUserUI(null);
+                    showToast('Çıkış yapıldı ✓');
+                } catch (e) {
+                    console.error('Logout error:', e);
+                    alert('Çıkış yapılamadı.');
+                }
             });
         }
 
@@ -1155,25 +1208,43 @@ Bu kaynaklara dayanarak soruyu cevapla.`;
     }
 
     /**
-     * Load chat list from Firestore
+     * Load chat list from Firestore using dbService
      */
     async function loadChatList() {
-        if (!currentUser || typeof db === 'undefined') return;
+        if (!currentUser) return;
+
+        // Check if dbService is available
+        if (typeof window.dbService === 'undefined') {
+            console.warn('dbService not loaded, skipping chat list');
+            return;
+        }
+
+        const chatListContainer = document.getElementById('chat-list');
+        const emptyState = document.getElementById('chat-list-empty');
+        if (!chatListContainer) return;
+
+        // Show loading state
+        chatListContainer.innerHTML = '<div class="chat-list-loading"></div>';
 
         try {
-            const chatsSnapshot = await db.collection('chats')
-                .where('userId', '==', currentUser.uid)
-                .orderBy('updatedAt', 'desc')
-                .limit(30)
-                .get();
+            // Use dbService to get chats
+            chats = await window.dbService.getUserChats(currentUser.uid);
 
-            chats = [];
-            const chatListContainer = document.getElementById('chat-list');
-            if (!chatListContainer) return;
+            // Clear container
+            chatListContainer.innerHTML = '';
 
-            // Clear existing items except the label
-            const items = chatListContainer.querySelectorAll('.chat-item');
-            items.forEach(item => item.remove());
+            // Show empty state if no chats
+            if (chats.length === 0) {
+                chatListContainer.innerHTML = `
+                    <div class="chat-list-empty">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                        <span>Henüz sohbet yok</span>
+                    </div>
+                `;
+                return;
+            }
 
             // Group chats by date
             const today = new Date();
@@ -1185,12 +1256,9 @@ Bu kaynaklara dayanarak soruyu cevapla.`;
 
             let currentLabel = '';
 
-            chatsSnapshot.forEach(doc => {
-                const chat = { id: doc.id, ...doc.data() };
-                chats.push(chat);
-
+            chats.forEach(chat => {
                 // Determine date label
-                const chatDate = chat.updatedAt?.toDate() || new Date();
+                const chatDate = chat.updatedAt?.toDate ? chat.updatedAt.toDate() : new Date(chat.updatedAt || Date.now());
                 let label = '';
                 if (chatDate >= today) {
                     label = 'BUGÜN';
@@ -1217,7 +1285,7 @@ Bu kaynaklara dayanarak soruyu cevapla.`;
                 if (chat.id === currentChatId) chatItem.classList.add('active');
 
                 const date = chatDate.toLocaleDateString('tr-TR', { day: 'numeric', month: 'short' });
-                const summary = chat.summary || 'Henüz özet yok.';
+                const preview = chat.preview || '';
 
                 chatItem.innerHTML = `
                     <div class="chat-item-content">
@@ -1225,17 +1293,17 @@ Bu kaynaklara dayanarak soruyu cevapla.`;
                             <span class="chat-title">${escapeHtml(chat.title || 'Yeni Sohbet')}</span>
                             <span class="chat-date">${date}</span>
                         </div>
-                        <div class="chat-summary">${escapeHtml(summary)}</div>
+                        <div class="chat-summary">${escapeHtml(preview.substring(0, 60))}</div>
                     </div>
                     <div class="chat-actions">
-                        <button class="chat-edit-btn" data-chat-id="${chat.id}" title="Düzenle">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                        <button class="chat-action-btn edit-btn chat-edit-btn" data-chat-id="${chat.id}" title="Düzenle">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
                                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
                             </svg>
                         </button>
-                        <button class="chat-delete-btn" data-chat-id="${chat.id}" title="Sil">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                        <button class="chat-action-btn delete-btn chat-delete-btn" data-chat-id="${chat.id}" title="Sil">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
                             </svg>
                         </button>
@@ -1249,20 +1317,25 @@ Bu kaynaklara dayanarak soruyu cevapla.`;
                 chatListContainer.appendChild(chatItem);
             });
 
-            // Update the first label if no chats
-            const firstLabel = chatListContainer.querySelector('.chat-list-label');
-            if (firstLabel && chats.length === 0) {
-                firstLabel.textContent = 'BUGÜN';
-            }
         } catch (e) {
             console.error('Chat list load error:', e);
+            chatListContainer.innerHTML = `
+                <div class="chat-list-empty">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                    <span>Sohbetler yüklenemedi</span>
+                </div>
+            `;
         }
     }
 
     /**
-     * Edit chat title
+     * Edit chat title using dbService
      */
     async function editChatTitle(chatId) {
+        if (!currentUser || typeof window.dbService === 'undefined') return;
+
         const chat = chats.find(c => c.id === chatId);
         if (!chat) return;
 
@@ -1270,9 +1343,8 @@ Bu kaynaklara dayanarak soruyu cevapla.`;
         if (newTitle === null || newTitle.trim() === '') return;
 
         try {
-            await db.collection('chats').doc(chatId).update({
-                title: newTitle.trim()
-            });
+            await window.dbService.updateChatTitle(currentUser.uid, chatId, newTitle.trim());
+            showToast('Başlık güncellendi ✓');
             await loadChatList();
         } catch (e) {
             console.error('Edit chat title error:', e);
@@ -1281,25 +1353,15 @@ Bu kaynaklara dayanarak soruyu cevapla.`;
     }
 
     /**
-     * Delete chat
+     * Delete chat using dbService
      */
     async function deleteChat(chatId) {
+        if (!currentUser || typeof window.dbService === 'undefined') return;
         if (!confirm('Bu sohbeti silmek istediğinize emin misiniz?')) return;
 
         try {
-            // Delete all messages in the chat
-            const messagesSnapshot = await db.collection('messages')
-                .where('chatId', '==', chatId)
-                .get();
-
-            const batch = db.batch();
-            messagesSnapshot.forEach(doc => {
-                batch.delete(doc.ref);
-            });
-
-            // Delete the chat
-            batch.delete(db.collection('chats').doc(chatId));
-            await batch.commit();
+            await window.dbService.deleteChat(currentUser.uid, chatId);
+            showToast('Sohbet silindi ✓');
 
             // If deleted chat was current, start new conversation
             if (chatId === currentChatId) {
@@ -1314,26 +1376,17 @@ Bu kaynaklara dayanarak soruyu cevapla.`;
     }
 
     /**
-     * Create a new chat
+     * Create a new chat is now handled by dbService.startNewChat
+     * This function is kept for backwards compatibility
      */
-    async function createNewChat() {
-        if (!currentUser || typeof db === 'undefined') return null;
+    async function createNewChat(firstMessage = '') {
+        if (!currentUser || typeof window.dbService === 'undefined') return null;
 
         try {
-            const date = new Date();
-            const options = { year: 'numeric', month: 'long', day: 'numeric' };
-            const defaultTitle = `Sohbet - ${date.toLocaleDateString('tr-TR', options)}`;
-
-            const chatRef = await db.collection('chats').add({
-                userId: currentUser.uid,
-                title: defaultTitle,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                messageCount: 0
-            });
-            currentChatId = chatRef.id;
+            const chatId = await window.dbService.startNewChat(currentUser.uid, firstMessage || 'Yeni Sohbet');
+            currentChatId = chatId;
             await loadChatList();
-            return chatRef.id;
+            return chatId;
         } catch (e) {
             console.error('Create chat error:', e);
             return null;
@@ -1371,33 +1424,35 @@ Bu kaynaklara dayanarak soruyu cevapla.`;
     }
 
     /**
-     * Load messages for a chat
+     * Load messages for a chat using dbService
      */
     async function loadChatMessages(chatId) {
-        if (!currentUser || typeof db === 'undefined') return;
+        if (!currentUser || typeof window.dbService === 'undefined') return;
 
         try {
-            const messagesSnapshot = await db.collection('messages')
-                .where('chatId', '==', chatId)
-                .orderBy('timestamp', 'asc')
-                .get();
+            const messages = await window.dbService.getChatMessages(currentUser.uid, chatId);
 
-            let lastUserContent = '';
-
-            messagesSnapshot.forEach(doc => {
-                const msg = doc.data();
+            messages.forEach(msg => {
                 if (msg.role === 'user') {
-                    lastUserContent = msg.content;
-                    // Display user query
+                    // Display user query with edit button
                     const queryDisplay = document.createElement('div');
                     queryDisplay.className = 'query-display';
                     queryDisplay.innerHTML = `
-                        <div class="query-bubble">${escapeHtml(msg.content)}</div>
+                        <div class="query-bubble">
+                            ${escapeHtml(msg.content)}
+                            <button class="edit-btn" data-text="${escapeHtml(msg.content)}" title="Düzenle">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                </svg>
+                            </button>
+                        </div>
                     `;
                     resultsArea.appendChild(queryDisplay);
 
                     // Add to conversation history
                     conversationHistory.push({ role: 'user', content: msg.content });
+
                 } else if (msg.role === 'assistant') {
                     // Display AI response
                     const responseCard = document.createElement('div');
@@ -1430,65 +1485,46 @@ Bu kaynaklara dayanarak soruyu cevapla.`;
             }
         } catch (e) {
             console.error('Load messages error:', e);
+            showToast('Mesajlar yüklenemedi');
         }
     }
 
     /**
-     * Save message to Firestore
+     * Save message to Firestore using dbService
      */
     async function saveMessageToFirestore(userQuery, aiResponse, sources) {
-        if (!currentUser || typeof db === 'undefined') return;
+        if (!currentUser || typeof window.dbService === 'undefined') return;
 
         try {
             // Create new chat if none exists
             if (!currentChatId) {
-                await createNewChat();
+                currentChatId = await window.dbService.startNewChat(currentUser.uid, userQuery);
             }
 
             // Save user message
-            await db.collection('messages').add({
-                chatId: currentChatId,
-                userId: currentUser.uid,
-                role: 'user',
-                content: userQuery,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            });
+            await window.dbService.saveMessage(
+                currentUser.uid,
+                currentChatId,
+                'user',
+                userQuery
+            );
 
-            // Save assistant message
-            await db.collection('messages').add({
-                chatId: currentChatId,
-                userId: currentUser.uid,
-                role: 'assistant',
-                content: aiResponse,
-                sources: sources.map(s => ({ text: s.text, source: s.source })),
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            });
-
-            // Update chat title and metadata
-            const chatRef = db.collection('chats').doc(currentChatId);
-            const chatDoc = await chatRef.get();
-            const messageCount = (chatDoc.data()?.messageCount || 0) + 2;
-
-            // Generate title from first message or update periodically
-            if (messageCount === 2) {
-                const title = await generateChatTitle(userQuery, aiResponse);
-                await chatRef.update({
-                    title: title,
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    messageCount: messageCount
-                });
-            } else {
-                await chatRef.update({
-                    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    messageCount: messageCount
-                });
-            }
+            // Save assistant message with sources
+            const sourcesData = sources.map(s => ({ text: s.text?.substring(0, 200), source: s.source }));
+            await window.dbService.saveMessage(
+                currentUser.uid,
+                currentChatId,
+                'assistant',
+                aiResponse,
+                sourcesData
+            );
 
             // Reload chat list to update UI
             await loadChatList();
+
         } catch (e) {
             console.error('Save message error:', e);
-            // Optionally notify user nicely that history wasn't saved
+            // Don't show error to user - chat history is a nice-to-have
         }
     }
 

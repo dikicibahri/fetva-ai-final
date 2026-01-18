@@ -2340,8 +2340,8 @@ input:checked+.slider:before {
 }
 
 .whatsapp-share-btn svg {
-    width: 36px;
-    height: 36px;
+    width: 24px;
+    height: 24px;
 }
 
 /* ==========================================
@@ -2495,7 +2495,271 @@ input:checked+.slider:before {
    Sidebar Mobile Improvements
    ========================================== */
 
-@media (max-width: 768px) {
+/* Sidebar Overlay - Mobile backdrop */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    backdrop-filter: blur(2px);
+}
+
+.sidebar-overlay.active {
+    display: block;
+    opacity: 1;
+}
+
+/* Desktop Layout - Sidebar open state */
+@media (min-width: 1024px) {
+    .app-layout.sidebar-open .app-container {
+        margin-left: 260px;
+        transition: margin-left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .app-layout .sidebar:not(.collapsed)~.app-container {
+        margin-left: 260px;
+    }
+
+    .sidebar-overlay {
+        display: none !important;
+    }
+}
+
+/* Chat Item Actions - Edit & Delete */
+.chat-action-btn {
+    width: 24px;
+    height: 24px;
+    padding: 4px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chat-action-btn:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+.chat-action-btn.delete-btn:hover {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+}
+
+.chat-action-btn.edit-btn:hover {
+    background: rgba(59, 130, 246, 0.15);
+    color: #3b82f6;
+}
+
+.chat-action-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* Empty State for Chat List */
+.chat-list-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-2xl) var(--space-lg);
+    text-align: center;
+    color: var(--text-muted);
+}
+
+.chat-list-empty svg {
+    width: 40px;
+    height: 40px;
+    margin-bottom: var(--space-md);
+    opacity: 0.5;
+}
+
+.chat-list-empty span {
+    font-size: 0.85rem;
+}
+
+/* Loading State for Chat List */
+.chat-list-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-xl);
+}
+
+.chat-list-loading::after {
+    content: '';
+    width: 24px;
+    height: 24px;
+    border: 2px solid var(--border-color);
+    border-top-color: var(--primary-green);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Sidebar User Info Improvements */
+.sidebar-user-info {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-md);
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.sidebar-user-info:hover {
+    background: var(--bg-card);
+}
+
+.sidebar-avatar {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, var(--primary-green) 0%, var(--accent-gold) 100%);
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: white;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+}
+
+.sidebar-user-details {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-username {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sidebar-email {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Logout Button in Sidebar */
+.sidebar-logout-btn {
+    width: 100%;
+    margin-top: var(--space-md);
+    padding: var(--space-sm) var(--space-md);
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
+    transition: all var(--transition-fast);
+}
+
+.sidebar-logout-btn:hover {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: #ef4444;
+    color: #ef4444;
+}
+
+.sidebar-logout-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* Toggle Icon Image */
+.toggle-icon-img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
+.toggle-content {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    flex: 1;
+}
+
+.toggle-content span {
+    font-size: 0.85rem;
+    color: var(--text-primary);
+}
+
+/* ==========================================
+   Responsive Breakpoints
+   ========================================== */
+
+/* Large Desktop */
+@media (min-width: 1280px) {
+    .app-container {
+        max-width: 960px;
+    }
+}
+
+/* Desktop */
+@media (min-width: 1024px) and (max-width: 1279px) {
+    .app-container {
+        max-width: 800px;
+    }
+}
+
+/* Tablet */
+@media (min-width: 768px) and (max-width: 1023px) {
+    .sidebar {
+        width: 280px;
+    }
+
+    .app-container {
+        max-width: 100%;
+        padding: 0 var(--space-lg);
+    }
+
+    .example-buttons {
+        grid-template-columns: 1fr;
+    }
+
+    .welcome-title {
+        font-size: 1.5rem;
+    }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+    .sidebar {
+        width: 85%;
+        max-width: 300px;
+    }
+
     .sidebar-footer {
         padding: var(--space-sm) 0;
     }
@@ -2527,11 +2791,135 @@ input:checked+.slider:before {
         height: 20px;
     }
 
-    .sidebar-toggle-wrapper span {
+    .sidebar-toggle-wrapper span,
+    .toggle-content span {
         font-size: 0.8rem;
     }
 
     .chat-list {
         max-height: calc(100vh - 280px);
+    }
+
+    .app-container {
+        padding: 0 var(--space-md);
+    }
+
+    .header {
+        padding: 0.75rem 0;
+    }
+
+    .welcome-section {
+        padding: var(--space-lg);
+    }
+
+    .welcome-title {
+        font-size: 1.25rem;
+    }
+
+    .welcome-description {
+        font-size: 0.875rem;
+    }
+
+    .example-buttons {
+        grid-template-columns: 1fr;
+        gap: var(--space-sm);
+    }
+
+    .example-btn {
+        padding: 0.625rem var(--space-md);
+        font-size: 0.8rem;
+    }
+
+    .search-container {
+        padding: var(--space-md);
+    }
+
+    .search-box {
+        padding: 0.5rem 0.75rem;
+    }
+
+    .search-box textarea {
+        font-size: 0.9rem;
+    }
+
+    .query-bubble {
+        max-width: 90%;
+        font-size: 0.85rem;
+    }
+
+    .ai-response-card {
+        padding: var(--space-lg);
+    }
+
+    .sources-section .category-item {
+        padding: var(--space-sm);
+    }
+
+    .response-actions {
+        flex-wrap: wrap;
+        gap: var(--space-sm);
+    }
+
+    .action-btn-text {
+        display: none;
+    }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+    .header-login-btn span {
+        display: none;
+    }
+
+    .header-login-btn {
+        padding: 0.5rem;
+    }
+
+    .logo-title {
+        font-size: 0.9rem;
+    }
+
+    .logo-image {
+        width: 20px;
+        height: 20px;
+    }
+
+    .new-chat-btn-full {
+        font-size: 0.8rem;
+        padding: 0.5rem 0.625rem;
+    }
+
+    .chat-title {
+        font-size: 0.85rem;
+    }
+
+    .chat-summary {
+        font-size: 0.7rem;
+    }
+
+    .main-content {
+        padding-bottom: 120px;
+    }
+}
+
+/* Print Styles */
+@media print {
+
+    .sidebar,
+    .sidebar-overlay,
+    .header,
+    .search-container,
+    .app-footer {
+        display: none !important;
+    }
+
+    .app-container {
+        max-width: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    .main-content {
+        padding-bottom: 0;
     }
 }
