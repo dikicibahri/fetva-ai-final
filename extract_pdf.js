@@ -3,13 +3,20 @@ const pdf = require('pdf-extraction');
 
 console.log('📚 PDF Extraction başlatılıyor...\n');
 
-// All PDF files to extract
+// All PDF files to extract (inside Arşiv folder)
 const pdfFiles = [
-    { file: 'fetvalar.pdf', source: 'Diyanet Fetva Kitabı 2018' },
-    { file: 'BUYUK-ISLAM-ILMIHALI-Omer-Nasuhi-BILMEN.pdf', source: 'Büyük İslam İlmihali - Ömer Nasuhi Bilmen' },
-    { file: 'ilmihal_cilt_1.pdf', source: 'İlmihal Cilt 1 - TDV' },
-    { file: 'ilmihal_cilt_2.pdf', source: 'İlmihal Cilt 2 - TDV' },
-    { file: 'hadislerle_islam.pdf', source: 'Hadislerle İslam' }
+    { file: 'Arşiv/fetvalar.pdf', source: 'Diyanet Fetva Kitabı 2018' },
+    { file: 'Arşiv/BUYUK-ISLAM-ILMIHALI-Omer-Nasuhi-BILMEN.pdf', source: 'Büyük İslam İlmihali - Ömer Nasuhi Bilmen' },
+    { file: 'Arşiv/ilmihal_cilt_1.pdf', source: 'İlmihal Cilt 1 - TDV' },
+    { file: 'Arşiv/ilmihal_cilt_2.pdf', source: 'İlmihal Cilt 2 - TDV' },
+    { file: 'Arşiv/hadislerle_islam.pdf', source: 'Hadislerle İslam' },
+    // Yeni eklenen kaynaklar
+    { file: 'Arşiv/Ehli Sunnet Akaidi - Muhammed Pezdevi 1980.pdf', source: 'Ehli Sünnet Akaidi - Muhammed Pezdevi' },
+    { file: 'Arşiv/Eş`ari ve Maturidi Mezhepleri Arasındaki Görüş Farkları - Mustafa Özgen.pdf', source: 'Eşari ve Maturidi Mezhepleri - Mustafa Özgen' },
+    { file: 'Arşiv/Nimet-i İslam (Mehmet Zihni Efendi).pdf', source: 'Nimet-i İslam - Mehmet Zihni Efendi' },
+    { file: 'Arşiv/Mızraklı İlmihali.pdf', source: 'Mızraklı İlmihali' },
+    { file: 'Arşiv/İmamı Azam Ebu Hanife_nin Görüşleri.pdf', source: 'İmam-ı Azam Ebu Hanife\'nin Görüşleri' },
+    { file: 'Arşiv/Fıkhı Ekber Şerhi.pdf', source: 'Fıkh-ı Ekber Şerhi' }
 ];
 
 async function extractAll() {
