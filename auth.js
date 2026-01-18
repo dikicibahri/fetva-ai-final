@@ -130,7 +130,16 @@ if (googleBtn) {
     googleBtn.addEventListener('click', async () => {
         const provider = new firebase.auth.GoogleAuthProvider();
 
+        // Add scopes for better user info
+        provider.addScope('profile');
+        provider.addScope('email');
+
+        // Disable button to prevent double-clicks
+        googleBtn.disabled = true;
+        googleBtn.style.opacity = '0.7';
+
         try {
+            // Try popup first
             const result = await auth.signInWithPopup(provider);
 
             // Check if new user
@@ -138,6 +147,7 @@ if (googleBtn) {
                 await db.collection('users').doc(result.user.uid).set({
                     email: result.user.email,
                     displayName: result.user.displayName || result.user.email.split('@')[0],
+                    photoURL: result.user.photoURL || null,
                     funnyMode: false,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
@@ -147,10 +157,50 @@ if (googleBtn) {
 
         } catch (error) {
             console.error('Google auth error:', error);
-            if (error.code !== 'auth/popup-closed-by-user') {
-                alert('Google ile giriş yapılamadı. Lütfen tekrar deneyin.');
+
+            // If popup blocked or failed, try redirect method
+            if (error.code === 'auth/popup-blocked' || error.code === 'auth/popup-closed-by-user') {
+                console.log('Popup blocked/closed, trying redirect...');
+                try {
+                    await auth.signInWithRedirect(provider);
+                } catch (redirectError) {
+                    console.error('Redirect error:', redirectError);
+                    alert('Google ile giriş yapılamadı. Popup engellenmiş olabilir.');
+                }
+            } else if (error.code === 'auth/cancelled-popup-request') {
+                // User cancelled, no need to show error
+                console.log('Popup request cancelled');
+            } else if (error.code === 'auth/network-request-failed') {
+                alert('İnternet bağlantınızı kontrol edin.');
+            } else if (error.code === 'auth/unauthorized-domain') {
+                console.error('Domain not authorized in Firebase Console');
+                alert('Bu domain Firebase\'de yetkilendirilmemiş. Geliştirici konsolunu kontrol edin.');
+            } else {
+                alert('Google ile giriş yapılamadı: ' + (error.message || 'Bilinmeyen hata'));
             }
+
+            googleBtn.disabled = false;
+            googleBtn.style.opacity = '1';
         }
+    });
+
+    // Handle redirect result (for when redirect method is used)
+    auth.getRedirectResult().then((result) => {
+        if (result.user) {
+            // User signed in via redirect
+            if (result.additionalUserInfo?.isNewUser) {
+                db.collection('users').doc(result.user.uid).set({
+                    email: result.user.email,
+                    displayName: result.user.displayName || result.user.email.split('@')[0],
+                    photoURL: result.user.photoURL || null,
+                    funnyMode: false,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }
+            window.location.href = 'index.html';
+        }
+    }).catch((error) => {
+        console.error('Redirect result error:', error);
     });
 }
 
