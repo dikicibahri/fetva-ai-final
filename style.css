@@ -2351,7 +2351,7 @@ input:checked+.slider:before {
 .whatsapp-share-btn:hover {
     background: rgba(37, 211, 102, 0.15);
     border-color: #25d366;
-    transform: translateY(-1px);
+    transform: scale(1.2) translateY(-2px);
 }
 
 .whatsapp-icon {
