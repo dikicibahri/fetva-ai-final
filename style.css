@@ -2307,6 +2307,80 @@ input:checked+.slider:before {
 }
 
 /* ==========================================
+   Sources Section (Collapsible)
+   ========================================== */
+
+.ai-response-sources {
+    margin-top: var(--space-lg);
+    padding: var(--space-md);
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+}
+
+.sources-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    cursor: pointer;
+    padding: var(--space-sm);
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-fast);
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.sources-header:hover {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+.sources-header svg {
+    width: 18px;
+    height: 18px;
+    stroke: currentColor;
+    transition: transform var(--transition-fast);
+}
+
+.sources-header.collapsed svg {
+    transform: rotate(-90deg);
+}
+
+.sources-list {
+    margin-top: var(--space-md);
+    padding-left: var(--space-md);
+}
+
+.sources-list.collapsed {
+    display: none;
+}
+
+.source-group {
+    margin-bottom: var(--space-md);
+}
+
+.source-group-title {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--primary-green-light);
+    margin-bottom: var(--space-xs);
+}
+
+.source-item {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    padding: var(--space-xs) 0;
+    border-left: 2px solid var(--border-color);
+    padding-left: var(--space-sm);
+    margin-bottom: var(--space-xs);
+}
+
+.source-text {
+    line-height: 1.4;
+}
+
+/* ==========================================
    Response Actions (WhatsApp Share, etc.)
    ========================================== */
 
@@ -2368,12 +2442,23 @@ input:checked+.slider:before {
     height: 24px;
     object-fit: contain;
     transition: all var(--transition-fast);
-    /* By default icons are visible in dark mode (assume light icons) */
+    /* Dark mode (default): make icons white/light */
+    filter: brightness(0) saturate(100%) invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%);
+    opacity: 0.85;
 }
 
-/* Light Mode Visibility fix - swap colors for icons */
+.feedback-icon:hover {
+    opacity: 1;
+}
+
+/* Light Mode: make icons dark */
 [data-theme="light"] .feedback-icon {
-    filter: invert(1) brightness(0.2);
+    filter: brightness(0) saturate(100%) invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(30%) contrast(100%);
+    opacity: 0.75;
+}
+
+[data-theme="light"] .feedback-icon:hover {
+    opacity: 1;
 }
 
 .feedback-btn:hover {
