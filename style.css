@@ -2351,7 +2351,6 @@ input:checked+.slider:before {
 .whatsapp-share-btn:hover {
     background: rgba(37, 211, 102, 0.15);
     border-color: #25d366;
-    transform: scale(1.2) translateY(-2px);
 }
 
 .whatsapp-icon {
@@ -2365,6 +2364,10 @@ input:checked+.slider:before {
 /* Light Mode: make WhatsApp icon dark/original */
 [data-theme="light"] .whatsapp-icon {
     filter: none;
+}
+
+.whatsapp-btn:hover .whatsapp-icon {
+    transform: scale(1.2) translateY(-2px);
 }
 
 /* ==========================================
