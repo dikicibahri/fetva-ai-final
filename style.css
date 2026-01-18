@@ -770,12 +770,26 @@ body {
 }
 
 .query-bubble .edit-btn {
-    opacity: 0;
-    transition: opacity var(--transition-fast);
+    opacity: 0.7;
+    background: transparent;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.query-bubble .edit-btn svg {
+    width: 16px;
+    height: 16px;
+    stroke: white;
 }
 
 .query-bubble:hover .edit-btn {
     opacity: 1;
+    transform: scale(1.15);
 }
 
 /* ==========================================
@@ -2321,27 +2335,35 @@ input:checked+.slider:before {
 .whatsapp-share-btn {
     display: flex;
     align-items: center;
-    gap: var(--space-sm);
-    padding: 0.625rem 1rem;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
     background: transparent;
-    color: white;
-    border: none;
+    border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
-    font-size: 0.85rem;
-    font-weight: 500;
     cursor: pointer;
     transition: all var(--transition-fast);
+    padding: 0;
+    overflow: hidden;
 }
 
 .whatsapp-share-btn:hover {
-    background: transparent;
+    background: rgba(37, 211, 102, 0.15);
+    border-color: #25d366;
     transform: translateY(-1px);
-    scale: 1.1;
 }
 
-.whatsapp-share-btn svg {
+.whatsapp-icon {
     width: 24px;
     height: 24px;
+    object-fit: contain;
+    /* Dark mode (default): icon should be white */
+    filter: brightness(0) invert(1);
+}
+
+/* Light Mode: make WhatsApp icon dark/original */
+[data-theme="light"] .whatsapp-icon {
+    filter: none;
 }
 
 /* ==========================================
@@ -2368,13 +2390,12 @@ input:checked+.slider:before {
     height: 24px;
     object-fit: contain;
     transition: all var(--transition-fast);
-    /* Dark mode (default): icons should be white/light */
-    filter: brightness(0) invert(1);
+    /* By default icons are visible in dark mode (assume light icons) */
 }
 
-/* Light Mode: make icons dark */
+/* Light Mode Visibility fix - swap colors for icons */
 [data-theme="light"] .feedback-icon {
-    filter: brightness(0) invert(0);
+    filter: invert(1) brightness(0.2);
 }
 
 .feedback-btn:hover {
@@ -2392,7 +2413,8 @@ input:checked+.slider:before {
 }
 
 .feedback-btn.active .feedback-icon {
-    filter: brightness(0) invert(1);
+    filter: none;
+    /* Keep original colors if active or handle appropriately */
     transform: scale(1.1);
 }
 
@@ -2414,13 +2436,6 @@ input:checked+.slider:before {
 .report-btn:hover {
     background: rgba(245, 158, 11, 0.15);
     border-color: #f59e0b;
-}
-
-/* WhatsApp Icon Img */
-.whatsapp-icon {
-    width: 36px;
-    height: 36px;
-    object-fit: contain;
 }
 
 /* Sidebar Top Toggle */

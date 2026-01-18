@@ -1122,7 +1122,7 @@ Bu kaynaklara dayanarak soruyu cevapla.`;
                 <button class="feedback-btn report-btn" data-query="${escapeHtml(query)}" data-response="${escapeHtml(aiResponse)}" title="Hata Bildir">
                     <img src="Resimler/hata_icon.png" alt="Hata Bildir" class="feedback-icon">
                 </button>
-                <button class="whatsapp-share-btn" data-query="${escapeHtml(query)}" data-response="${escapeHtml(aiResponse)}" title="WhatsApp ile Paylaş">
+                <button class="feedback-btn whatsapp-share-btn" data-query="${escapeHtml(query)}" data-response="${escapeHtml(aiResponse)}" title="WhatsApp ile Paylaş">
                     <img src="Resimler/whatsapp icon.png" alt="WhatsApp" class="whatsapp-icon">
                 </button>
             </div>
