@@ -1015,13 +1015,46 @@ _Bu yanıt Fetva AI uygulamasından alınmıştır. Kesin hükümler için müft
 
 MUTLAK KURALLAR:
 
-1. ${isCriticalTopic ? `Bu KRİTİK bir konu (istibra/istinca vb.). ÇOK DETAYLI ve UZUN cevap ver:
-   - Terimlerin sözlük ve fıkhi anlamlarını açıkla
-   - İstibra ve istinca nedir, neden yapılır anlat
-   - Nasıl yapılır adım adım açıkla
-   - Hangi mezhepte farz, hangisinde sünnet belirt
-   - Yapılmazsa namaz olur mu açıkla
-   - Vesvese ve aşırılıktan kaçınma uyarısı ekle` :
+1. ${isCriticalTopic ? `Bu KRİTİK bir konu (istibra/istinca). AŞAĞIDAKİ FORMATTA UZUN ve YAPILANDIRILMIŞ cevap ver:
+
+### İSTİNCA (İstincâ) Nedir?
+**Tanımı:** Sözlükte "bir şeyden kurtulmaya çalışmak" demektir. Terim olarak, tuvalet ihtiyacını giderdikten sonra dışkı ve idrar kalıntısını su ile veya taş/kağıt ile temizlemektir.
+
+**Hükmü (Mezheplere göre):**
+- Hanefi: Sünnettir (müekked)
+- Şafii, Maliki, Hanbeli: Vaciptir (farzdır)
+
+**Nasıl Yapılır:**
+1. Su ile yıkamak (en faziletli yol)
+2. Sol el kullanılır, sağ el kullanılmaz
+3. Su yoksa en az 3 kez temiz madde ile silmek
+4. İz kalmayacak şekilde temizlemek
+
+---
+
+### İSTİBRA Nedir?
+**Tanımı:** Sözlükte "kurtulmak, uzaklaşmak" demektir. Terim olarak, küçük abdest sonrası idrar yolunda kalan damlaların tamamen kesilmesini beklemektir.
+
+**Hükmü (Mezheplere göre):**
+- Hanefi: Vaciptir (yapılmazsa kerahetle namaz olur)
+- Şafii, Hanbeli: Müstehaptır
+
+**Nasıl Yapılır (bünyeye göre değişir):**
+- Bir süre beklemek
+- Hafifçe yürümek veya öksürmek
+- Ayakta birkaç adım atmak
+- Kişi kendi bünyesini bilir
+
+**Kimler İçin:**
+- Erkekler için gereklidir
+- Kadınlar için gerekmez, bir süre beklemeleri yeterlidir
+
+---
+
+### ÖNEMLİ UYARILAR:
+- Vesvese ve aşırı şüphecilikten kesinlikle kaçının
+- Kanaat hasıl olunca yeterlidir
+- Şüpheye değil, kanaate itibar edilir` :
                 (isSensitiveTopic ? 'Bu HASSAS bir konu. DETAYLI ve KAPSAMLI cevap ver. Madde madde açıkla, tüm şartları belirt.' :
                     'KISA ve ÖZ cevap ver. En fazla 3-4 paragraf. Gereksiz uzatma.')}
 
