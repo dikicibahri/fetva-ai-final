@@ -888,7 +888,46 @@ _Bu yanıt Fetva AI uygulamasından alınmıştır. Kesin hükümler için müft
     }
 
     /**
-     * Local search with synonym expansion
+     * Source Priority Weights - Authoritative sources get bonus points
+     */
+    const SOURCE_WEIGHTS = {
+        // High Priority - Primary Q&A source
+        'Diyanet Fetva Kitabı': 25,
+        'Fetva Kitabı': 25,
+
+        // Medium-High Priority - Trusted comprehensive guide
+        'Ömer Nasuhi Bilmen': 15,
+        'Büyük İslam İlmihali': 15,
+
+        // Medium Priority - Detailed religious explanations
+        'İlmihal Cilt 1': 15,
+        'İlmihal Cilt 2': 15,
+        'TDV': 15,
+
+        // Standard Priority - Supporting sources
+        'Hadislerle İslam': 5
+    };
+
+    /**
+     * Get source priority bonus based on source name
+     */
+    function getSourceBonus(sourceName) {
+        if (!sourceName) return 0;
+
+        const sourceUpper = sourceName.toUpperCase();
+
+        // Check each weight key
+        for (const [key, bonus] of Object.entries(SOURCE_WEIGHTS)) {
+            if (sourceUpper.includes(key.toUpperCase())) {
+                return bonus;
+            }
+        }
+
+        return 0;
+    }
+
+    /**
+     * Local search with synonym expansion and source priority
      */
     function searchLocal(query) {
         if (!fetvaData.length) return [];
@@ -905,16 +944,16 @@ _Bu yanıt Fetva AI uygulamasından alınmıştır. Kesin hükümler için müft
             const source = typeof item === 'string' ? 'Diyanet Fetva Kitabı 2018' : item.source;
 
             const textLower = text.toLowerCase();
-            let score = 0;
+            let keywordScore = 0;
             let matchCount = 0;
 
             // Exact phrase match (highest score)
-            if (textLower.includes(queryLower)) score += 100;
+            if (textLower.includes(queryLower)) keywordScore += 100;
 
             // Original word matches
             originalWords.forEach(word => {
                 if (word.length > 2 && textLower.includes(word)) {
-                    score += 15;
+                    keywordScore += 15;
                     matchCount++;
                 }
             });
@@ -922,21 +961,25 @@ _Bu yanıt Fetva AI uygulamasından alınmıştır. Kesin hükümler için müft
             // Expanded synonym matches
             expandedWords.forEach(word => {
                 if (word.length > 2 && textLower.includes(word)) {
-                    score += 8;
+                    keywordScore += 8;
                 }
             });
 
             // Bonus for matching all original words
-            if (matchCount === originalWords.length && originalWords.length > 1) score += 30;
+            if (matchCount === originalWords.length && originalWords.length > 1) keywordScore += 30;
 
             // Prefer medium-length content
-            if (text.length > 80 && text.length < 1000 && score > 0) score += 5;
+            if (text.length > 80 && text.length < 1000 && keywordScore > 0) keywordScore += 5;
 
             // Penalize very short or TOC entries
-            if (text.length < 50) score -= 20;
-            if (text.includes('...') && text.match(/\d{2,3}$/)) score = 0;
+            if (text.length < 50) keywordScore -= 20;
+            if (text.includes('...') && text.match(/\d{2,3}$/)) keywordScore = 0;
 
-            return { text, source, score, index };
+            // Add source priority bonus
+            const sourceBonus = getSourceBonus(source);
+            const finalScore = keywordScore + (keywordScore > 0 ? sourceBonus : 0);
+
+            return { text, source, score: finalScore, keywordScore, sourceBonus, index };
         });
 
         const results = scoredResults
@@ -945,6 +988,9 @@ _Bu yanıt Fetva AI uygulamasından alınmıştır. Kesin hükümler için müft
             .slice(0, 10);
 
         console.log('📊 Bulunan sonuç:', results.length);
+        if (results.length > 0) {
+            console.log('🏆 En iyi sonuç:', results[0].source, '- Puan:', results[0].score, '(Kaynak bonusu:', results[0].sourceBonus + ')');
+        }
         return results;
     }
 
