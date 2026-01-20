@@ -998,12 +998,14 @@ _Bu yanıt Fetva AI uygulamasından alınmıştır. Kesin hükümler için müft
      * Get AI response with conversation history
      */
     async function getAIResponse(userQuery, relevantResults) {
-        // CRITICAL topics - need very detailed, step-by-step answers
-        const criticalTopics = ['istibra', 'istinca', 'miras', 'veraset', 'hayız', 'adet', 'lohusa', 'nifas', 'iddet'];
+        // CRITICAL topics - require VERY detailed answers (istibra, istinca etc.)
+        const criticalTopics = ['istibra', 'istinca', 'idrar', 'bevl', 'necaset', 'pislik',
+            'abdest bozulma', 'abdest bozulur', 'sızıntı', 'akıntı', 'mezi', 'vedi'];
 
         // Sensitive topics that require detailed answers
-        const sensitiveTopics = ['cenabet', 'gusül', 'cünüp', 'talak', 'boşanma', 'nafaka', 'mehir', 'nikah',
-            'zina', 'had', 'kefaret', 'yemin', 'cenaze', 'defin', 'techiz', 'secde', 'rüku', 'abdest'];
+        const sensitiveTopics = ['miras', 'veraset', 'hayız', 'adet', 'lohusa', 'nifas',
+            'cenabet', 'gusül', 'cünüp', 'talak', 'boşanma', 'iddet', 'nafaka', 'mehir', 'nikah',
+            'zina', 'had', 'kefaret', 'yemin', 'cenaze', 'defin', 'techiz', 'secde', 'rüku'];
 
         const queryLower = userQuery.toLowerCase();
         const isCriticalTopic = criticalTopics.some(topic => queryLower.includes(topic));
@@ -1013,16 +1015,15 @@ _Bu yanıt Fetva AI uygulamasından alınmıştır. Kesin hükümler için müft
 
 MUTLAK KURALLAR:
 
-1. ${isCriticalTopic
-                ? `Bu ÇOK KRİTİK bir konu (${criticalTopics.find(t => queryLower.includes(t))}). 
-   - UZUN ve KAPSAMLI cevap ver
-   - Adım adım açıkla (önce tanım, sonra nasıl yapılır, sonra mezhep farkları)
-   - Tüm şartları, farzları, vacipleri, sünnetleri ayrı ayrı listele
-   - Pratik bilgiler ver (ne zaman, nasıl, ne kadar beklemeli vb.)
-   - Vesvese ve aşırılıktan kaçınma uyarısı ekle`
-                : isSensitiveTopic
-                    ? 'Bu HASSAS bir konu. DETAYLI ve KAPSAMLI cevap ver. Madde madde açıkla, tüm şartları belirt.'
-                    : 'KISA ve ÖZ cevap ver. En fazla 3-4 paragraf. Gereksiz uzatma.'}
+1. ${isCriticalTopic ? `Bu KRİTİK bir konu (istibra/istinca vb.). ÇOK DETAYLI ve UZUN cevap ver:
+   - Terimlerin sözlük ve fıkhi anlamlarını açıkla
+   - İstibra ve istinca nedir, neden yapılır anlat
+   - Nasıl yapılır adım adım açıkla
+   - Hangi mezhepte farz, hangisinde sünnet belirt
+   - Yapılmazsa namaz olur mu açıkla
+   - Vesvese ve aşırılıktan kaçınma uyarısı ekle` :
+                (isSensitiveTopic ? 'Bu HASSAS bir konu. DETAYLI ve KAPSAMLI cevap ver. Madde madde açıkla, tüm şartları belirt.' :
+                    'KISA ve ÖZ cevap ver. En fazla 3-4 paragraf. Gereksiz uzatma.')}
 
 2. Cevabın içinde kaynak belirtme - kaynaklar ayrıca gösterilecek.
 
@@ -1093,9 +1094,6 @@ Bu kaynaklara dayanarak soruyu cevapla.`;
         // Add current query
         messages.push({ role: 'user', content: userPrompt });
 
-        // Dynamic max_tokens based on topic importance
-        const maxTokens = isCriticalTopic ? 1200 : (isSensitiveTopic ? 900 : 700);
-
         const response = await fetch(API_CONFIG.baseUrl, {
             method: 'POST',
             headers: {
@@ -1106,7 +1104,7 @@ Bu kaynaklara dayanarak soruyu cevapla.`;
                 model: API_CONFIG.model,
                 messages: messages,
                 temperature: 0.7,
-                max_tokens: maxTokens
+                max_tokens: isCriticalTopic ? 1500 : (isSensitiveTopic ? 1000 : 700)
             })
         });
 
