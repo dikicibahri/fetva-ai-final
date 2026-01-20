@@ -746,6 +746,44 @@ body {
 }
 
 /* ==========================================
+   Share Conversation Button
+   ========================================== */
+
+.results-header {
+    display: flex;
+    justify-content: flex-end;
+    padding: var(--space-md) 0;
+    margin-bottom: var(--space-md);
+}
+
+.share-conversation-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, #25d366, #128c7e);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    box-shadow: var(--shadow-sm);
+}
+
+.share-conversation-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    background: linear-gradient(135deg, #2be072, #159c8a);
+}
+
+.share-conversation-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* ==========================================
    Query Display (User's question)
    ========================================== */
 

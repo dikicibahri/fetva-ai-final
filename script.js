@@ -356,6 +356,12 @@ document.addEventListener('DOMContentLoaded', () => {
             newChatSidebarBtn.addEventListener('click', startNewConversation);
         }
 
+        // Share Conversation button
+        const shareConversationBtn = document.getElementById('share-conversation-btn');
+        if (shareConversationBtn) {
+            shareConversationBtn.addEventListener('click', shareFullConversation);
+        }
+
         // Sidebar toggle with animation and overlay
         const sidebarToggle = document.getElementById('sidebar-toggle');
         const sidebarClose = document.getElementById('sidebar-close');
@@ -591,6 +597,47 @@ _Bu yanıt Fetva AI uygulamasından alınmıştır. Kesin hükümler için müft
         const encodedMessage = encodeURIComponent(message);
         const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
         window.open(whatsappUrl, '_blank');
+    }
+
+    /**
+     * Share full conversation to WhatsApp
+     */
+    function shareFullConversation() {
+        // Get all Q&A pairs from the results area
+        const queries = document.querySelectorAll('.query-bubble');
+        const responses = document.querySelectorAll('.ai-response-card .response-content');
+
+        if (queries.length === 0) {
+            showToast('Paylaşılacak sohbet bulunamadı');
+            return;
+        }
+
+        let conversationText = `*📿 Fetva AI - Sohbet Geçmişi*\n`;
+        conversationText += `_${new Date().toLocaleDateString('tr-TR')}_\n\n`;
+        conversationText += `═══════════════════\n\n`;
+
+        queries.forEach((query, index) => {
+            // Get query text (remove button icons)
+            const queryText = query.textContent.trim().replace(/\s+/g, ' ');
+
+            // Get response text
+            const responseEl = responses[index];
+            const responseText = responseEl ? responseEl.textContent.trim() : '';
+
+            conversationText += `*${index + 1}. Soru:*\n${queryText}\n\n`;
+            conversationText += `*Cevap:*\n${responseText}\n\n`;
+            conversationText += `───────────────────\n\n`;
+        });
+
+        conversationText += `_Bu sohbet Fetva AI uygulamasından paylaşılmıştır._\n`;
+        conversationText += `_Kesin hükümler için müftülüklere danışınız._\n`;
+        conversationText += `🔗 fetva-ai.vercel.app`;
+
+        const encodedMessage = encodeURIComponent(conversationText);
+        const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+        window.open(whatsappUrl, '_blank');
+
+        showToast('Sohbet WhatsApp\'a aktarılıyor...');
     }
 
     /**
@@ -1108,13 +1155,30 @@ MUTLAK KURALLAR:
    � Merak güzel şey, sormadan öğrenilmez! Gel bir çay içelim anlatalım.`;
             }
         }
+        // Different prompt for critical vs normal topics
+        let userPrompt;
 
-        const userPrompt = `Soru: ${userQuery}
+        if (isCriticalTopic) {
+            // For critical topics, tell AI to use its own fiqh knowledge
+            userPrompt = `Soru: ${userQuery}
+
+ÖNEMLİ: Bu kritik bir fıkhi konudur (istibra/istinca/taharet). 
+- Yukarıda verilen ŞABLONU TAKİP ET
+- Kendi İslam fıkhı bilgini kullan
+- Mezhep görüşlerini (Hanefi, Şafii) net belirt
+- Aşağıdaki kaynakları sadece DESTEKLEYICI olarak kullan, eksik veya yanlışlarsa görmezden gel:
+
+${relevantResults.map((r, i) => `[${i + 1}] (${r.source}) ${r.text}`).join('\n\n')}
+
+ŞABLONA GÖRE TAM ve DETAYLI cevap ver.`;
+        } else {
+            userPrompt = `Soru: ${userQuery}
 
 Kaynaklar:
 ${relevantResults.map((r, i) => `[${i + 1}] (${r.source}) ${r.text}`).join('\n\n')}
 
 Bu kaynaklara dayanarak soruyu cevapla.`;
+        }
 
         // Build messages with history
         let messages = [{ role: 'system', content: systemPrompt }];
@@ -1152,6 +1216,12 @@ Bu kaynaklara dayanarak soruyu cevapla.`;
      * Appends to existing conversation instead of clearing
      */
     function displayAIResponse(query, aiResponse, sources, isFirstMessage = false) {
+        // Show share conversation button
+        const resultsHeader = document.getElementById('results-header');
+        if (resultsHeader) {
+            resultsHeader.style.display = 'flex';
+        }
+
         // Only clear on first message of a new conversation
         if (isFirstMessage || resultsArea.querySelector('.typing-indicator')) {
             // Remove loading indicator if present
@@ -1281,6 +1351,12 @@ Bu kaynaklara dayanarak soruyu cevapla.`;
     function startNewConversation() {
         // Clear the results area
         resultsArea.innerHTML = '';
+
+        // Hide share conversation button
+        const resultsHeader = document.getElementById('results-header');
+        if (resultsHeader) {
+            resultsHeader.style.display = 'none';
+        }
 
         // Show welcome section
         welcomeSection.style.display = 'flex';
