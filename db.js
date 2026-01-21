@@ -203,6 +203,75 @@ async function deleteChat(userId, chatId) {
     }
 }
 
+/**
+ * Share a chat and get a public share ID
+ * @param {string} userId - The user's UID
+ * @param {string} chatId - The chat document ID
+ * @returns {Promise<string>} - The share ID
+ */
+async function shareChat(userId, chatId) {
+    try {
+        // Get chat data
+        const chatRef = db.collection('users').doc(userId).collection('chats').doc(chatId);
+        const chatDoc = await chatRef.get();
+
+        if (!chatDoc.exists) {
+            throw new Error('Chat not found');
+        }
+
+        // Get messages
+        const messages = await getChatMessages(userId, chatId);
+
+        // Create shared chat document in public collection
+        const sharedChatRef = db.collection('shared_chats');
+        const shareDoc = await sharedChatRef.add({
+            title: chatDoc.data().title,
+            messages: messages,
+            sharedBy: userId,
+            sharedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            originalChatId: chatId
+        });
+
+        // Update original chat with share ID
+        await chatRef.update({
+            shareId: shareDoc.id,
+            isShared: true
+        });
+
+        console.log('✅ Chat shared with ID:', shareDoc.id);
+        return shareDoc.id;
+
+    } catch (error) {
+        console.error('❌ Error sharing chat:', error);
+        throw error;
+    }
+}
+
+/**
+ * Get a shared chat by share ID (public access)
+ * @param {string} shareId - The share document ID
+ * @returns {Promise<Object>} - The shared chat data with messages
+ */
+async function getSharedChat(shareId) {
+    try {
+        const shareDoc = await db.collection('shared_chats').doc(shareId).get();
+
+        if (!shareDoc.exists) {
+            return null;
+        }
+
+        console.log('✅ Loaded shared chat:', shareId);
+        return {
+            id: shareDoc.id,
+            ...shareDoc.data()
+        };
+
+    } catch (error) {
+        console.error('❌ Error getting shared chat:', error);
+        throw error;
+    }
+}
+
 // Export functions for use in script.js
 // Since we're using compat SDK with global scope, we attach to window
 window.dbService = {
@@ -211,7 +280,9 @@ window.dbService = {
     getUserChats,
     getChatMessages,
     updateChatTitle,
-    deleteChat
+    deleteChat,
+    shareChat,
+    getSharedChat
 };
 
 console.log('📦 Database Service Layer loaded');

@@ -284,7 +284,8 @@ body {
     top: 0;
     left: 0;
     height: 100vh;
-    width: 260px;
+    width: 300px;
+    /* Increased from 260px */
     background: var(--bg-secondary);
     border-right: 1px solid var(--border-color);
     z-index: 1000;
@@ -2980,4 +2981,142 @@ input:checked+.slider:before {
     .main-content {
         padding-bottom: 0;
     }
+}
+
+/* ==========================================
+   Share Dialog Styles
+   ========================================== */
+
+.share-dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.2s ease;
+}
+
+.share-dialog {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: var(--shadow-lg);
+}
+
+.share-dialog-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.share-dialog-header h3 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 1.1rem;
+}
+
+.share-dialog-close {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+}
+
+.share-dialog-close:hover {
+    color: var(--text-primary);
+}
+
+.share-dialog p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.share-url-box {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.share-url-input {
+    flex: 1;
+    padding: 0.75rem;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-size: 0.85rem;
+}
+
+.share-copy-btn {
+    padding: 0.75rem 1rem;
+    background: var(--primary-green);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-weight: 500;
+    transition: all var(--transition-fast);
+}
+
+.share-copy-btn:hover {
+    background: var(--primary-green-light);
+}
+
+.share-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.share-whatsapp-btn {
+    flex: 1;
+    padding: 0.75rem;
+    background: #25d366;
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-weight: 500;
+    transition: all var(--transition-fast);
+}
+
+.share-whatsapp-btn:hover {
+    background: #20bd5a;
+}
+
+/* Shared Chat Display */
+.shared-chat-info {
+    text-align: center;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.shared-badge {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, var(--primary-green), var(--primary-green-light));
+    color: white;
+    border-radius: var(--radius-full);
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-bottom: 0.75rem;
+}
+
+.shared-chat-info h2 {
+    color: var(--text-primary);
+    font-size: 1.25rem;
+    margin: 0;
 }

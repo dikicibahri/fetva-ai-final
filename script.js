@@ -75,11 +75,68 @@ document.addEventListener('DOMContentLoaded', () => {
         setupUserDropdown();
         checkQueryLimit();
         showDisclaimerModal(); // İlk girişte yasal uyarı göster
+        checkSharedChatUrl(); // Check if viewing a shared chat
 
         // Init sidebar toggle state
         const sidebarFunnyToggle = document.getElementById('sidebar-funny-mode');
         if (sidebarFunnyToggle) {
             sidebarFunnyToggle.checked = funnyMode;
+        }
+    }
+
+    /**
+     * Check if URL contains a shared chat ID and load it
+     */
+    async function checkSharedChatUrl() {
+        const path = window.location.pathname;
+        const shareMatch = path.match(/\/share\/([a-zA-Z0-9]+)/);
+
+        if (shareMatch) {
+            const shareId = shareMatch[1];
+            console.log('📤 Loading shared chat:', shareId);
+
+            try {
+                const sharedChat = await window.dbService.getSharedChat(shareId);
+
+                if (sharedChat) {
+                    // Hide welcome section
+                    welcomeSection.style.display = 'none';
+                    resultsArea.innerHTML = '';
+
+                    // Display shared chat info
+                    const infoDiv = document.createElement('div');
+                    infoDiv.className = 'shared-chat-info';
+                    infoDiv.innerHTML = `
+                        <div class="shared-badge">📤 Paylaşılan Sohbet</div>
+                        <h2>${escapeHtml(sharedChat.title)}</h2>
+                    `;
+                    resultsArea.appendChild(infoDiv);
+
+                    // Display messages
+                    sharedChat.messages.forEach((msg, index) => {
+                        if (msg.role === 'user') {
+                            const queryDiv = document.createElement('div');
+                            queryDiv.className = 'query-display';
+                            queryDiv.innerHTML = `<div class="query-bubble">${escapeHtml(msg.content)}</div>`;
+                            resultsArea.appendChild(queryDiv);
+                        } else {
+                            const responseCard = document.createElement('div');
+                            responseCard.className = 'ai-response-card';
+                            responseCard.innerHTML = `
+                                <div class="response-content">${formatResponse(msg.content)}</div>
+                            `;
+                            resultsArea.appendChild(responseCard);
+                        }
+                    });
+
+                    showToast('Paylaşılan sohbet yüklendi');
+                } else {
+                    showToast('Paylaşılan sohbet bulunamadı');
+                }
+            } catch (error) {
+                console.error('Error loading shared chat:', error);
+                showToast('Sohbet yüklenirken hata oluştu');
+            }
         }
     }
 
@@ -600,45 +657,79 @@ _Bu yanıt Fetva AI uygulamasından alınmıştır. Kesin hükümler için müft
     }
 
     /**
-     * Share full conversation to WhatsApp
+     * Share full conversation - creates a shareable link
      */
-    function shareFullConversation() {
-        // Get all Q&A pairs from the results area
-        const queries = document.querySelectorAll('.query-bubble');
-        const responses = document.querySelectorAll('.ai-response-card .response-content');
-
-        if (queries.length === 0) {
-            showToast('Paylaşılacak sohbet bulunamadı');
+    async function shareFullConversation() {
+        if (!currentChatId) {
+            showToast('Önce bir sohbet başlatın');
             return;
         }
 
-        let conversationText = `*📿 Fetva AI - Sohbet Geçmişi*\n`;
-        conversationText += `_${new Date().toLocaleDateString('tr-TR')}_\n\n`;
-        conversationText += `═══════════════════\n\n`;
+        const user = firebase.auth().currentUser;
+        if (!user) {
+            showToast('Paylaşmak için giriş yapmalısınız');
+            return;
+        }
 
-        queries.forEach((query, index) => {
-            // Get query text (remove button icons)
-            const queryText = query.textContent.trim().replace(/\s+/g, ' ');
+        try {
+            showToast('Paylaşım linki oluşturuluyor...');
 
-            // Get response text
-            const responseEl = responses[index];
-            const responseText = responseEl ? responseEl.textContent.trim() : '';
+            // Use dbService to share the chat
+            const shareId = await window.dbService.shareChat(user.uid, currentChatId);
 
-            conversationText += `*${index + 1}. Soru:*\n${queryText}\n\n`;
-            conversationText += `*Cevap:*\n${responseText}\n\n`;
-            conversationText += `───────────────────\n\n`;
-        });
+            // Create shareable URL
+            const shareUrl = `${window.location.origin}/share/${shareId}`;
 
-        conversationText += `_Bu sohbet Fetva AI uygulamasından paylaşılmıştır._\n`;
-        conversationText += `_Kesin hükümler için müftülüklere danışınız._\n`;
-        conversationText += `🔗 fetva-ai.vercel.app`;
+            // Copy to clipboard
+            await navigator.clipboard.writeText(shareUrl);
 
-        const encodedMessage = encodeURIComponent(conversationText);
-        const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
-        window.open(whatsappUrl, '_blank');
+            showToast('✅ Link kopyalandı! Paylaşabilirsiniz.');
+            console.log('📤 Share URL:', shareUrl);
 
-        showToast('Sohbet WhatsApp\'a aktarılıyor...');
+            // Also show a dialog with the link
+            showShareDialog(shareUrl);
+
+        } catch (error) {
+            console.error('Share error:', error);
+            showToast('❌ Paylaşım hatası: ' + error.message);
+        }
     }
+
+    /**
+     * Show share dialog with the link
+     */
+    function showShareDialog(shareUrl) {
+        // Remove existing dialog if any
+        const existing = document.querySelector('.share-dialog-overlay');
+        if (existing) existing.remove();
+
+        const overlay = document.createElement('div');
+        overlay.className = 'share-dialog-overlay';
+        overlay.innerHTML = `
+            <div class="share-dialog">
+                <div class="share-dialog-header">
+                    <h3>📤 Sohbet Paylaşıldı!</h3>
+                    <button class="share-dialog-close">×</button>
+                </div>
+                <p>Bu linki paylaşarak sohbeti başkalarıyla paylaşabilirsiniz:</p>
+                <div class="share-url-box">
+                    <input type="text" value="${shareUrl}" readonly class="share-url-input">
+                    <button class="share-copy-btn" onclick="navigator.clipboard.writeText('${shareUrl}'); this.textContent='✅ Kopyalandı';">📋 Kopyala</button>
+                </div>
+                <div class="share-actions">
+                    <button class="share-whatsapp-btn" onclick="window.open('https://wa.me/?text=${encodeURIComponent('Fetva AI Sohbeti: ' + shareUrl)}', '_blank')">
+                        WhatsApp'ta Paylaş
+                    </button>
+                </div>
+            </div>
+        `;
+
+        overlay.querySelector('.share-dialog-close').onclick = () => overlay.remove();
+        overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+
+        document.body.appendChild(overlay);
+    }
+
 
     /**
      * Handle like button click
@@ -1302,9 +1393,6 @@ Bu kaynaklara dayanarak soruyu cevapla.`;
                 <button class="feedback-btn report-btn" data-query="${escapeHtml(query)}" data-response="${escapeHtml(aiResponse)}" title="Hata Bildir">
                     <img src="Resimler/hata_icon.png" alt="Hata Bildir" class="feedback-icon">
                 </button>
-                <button class="feedback-btn whatsapp-share-btn" data-query="${escapeHtml(query)}" data-response="${escapeHtml(aiResponse)}" title="WhatsApp ile Paylaş">
-                    <img src="Resimler/whatsapp icon.png" alt="WhatsApp" class="whatsapp-icon">
-                </button>
             </div>
         `;
         resultsArea.appendChild(responseCard);
@@ -1354,7 +1442,7 @@ Bu kaynaklara dayanarak soruyu cevapla.`;
      */
     function addLaubaliComment(text) {
         const randomSoz = FUNNY_ENDINGS[Math.floor(Math.random() * FUNNY_ENDINGS.length)];
-        return text + `\n\n---\n*🎭 Goca Oğlan'ın Notu:* ${randomSoz}`;
+        return text + `\n\n---\n*🎭 AI'ın Notu:* ${randomSoz} 🙃🫠😤`;
     }
 
     /**
