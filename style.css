@@ -787,39 +787,41 @@ body {
 /* ==========================================
    Share Conversation Button
    ========================================== */
-
 .results-header {
-    display: flex;
-    justify-content: flex-end;
-    padding: var(--space-md) 0;
-    margin-bottom: var(--space-md);
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 12px;
 }
 
-.share-conversation-btn {
-    display: flex;
-    align-items: center;
-    gap: var(--space-sm);
-    padding: 0.5rem 1rem;
-    background: linear-gradient(135deg, #25d366, #128c7e);
-    color: white;
-    border: none;
-    border-radius: var(--radius-md);
-    font-size: 0.85rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all var(--transition-fast);
-    box-shadow: var(--shadow-sm);
+.share-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: linear-gradient(135deg, #f4f4f5, #e4e4e7);
+  color: #27272a;
+  border: 1px solid #d4d4d8;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s ease;
 }
 
-.share-conversation-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-    background: linear-gradient(135deg, #2be072, #159c8a);
+.share-btn:hover {
+  background: linear-gradient(135deg, #e4e4e7, #d4d4d8);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
-.share-conversation-btn svg {
-    width: 18px;
-    height: 18px;
+.share-btn:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.share-icon {
+  width: 16px;
+  height: 16px;
 }
 
 /* ==========================================
