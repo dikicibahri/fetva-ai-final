@@ -71,6 +71,35 @@
     --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.15);
 }
 
+/* Sidebar Light Mode Specific Fixes */
+[data-theme="light"] .sidebar {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+[data-theme="light"] .sidebar-username {
+    color: #1f2328 !important;
+    /* Force dark text */
+}
+
+[data-theme="light"] .sidebar-email {
+    color: #57606a !important;
+}
+
+[data-theme="light"] .sidebar-brand {
+    color: #1f2328 !important;
+}
+
+[data-theme="light"] .new-chat-btn-full {
+    background-color: #ffffff;
+    color: #1a5f4a;
+    border: 1px solid rgba(26, 95, 74, 0.2);
+}
+
+[data-theme="light"] .new-chat-btn-full:hover {
+    background-color: #f6f8fa;
+}
+
 /* ==========================================
    Base Styles
    ========================================== */

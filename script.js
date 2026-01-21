@@ -344,6 +344,13 @@ document.addEventListener('DOMContentLoaded', () => {
     function loadData() {
         if (window.FETVA_DATA && Array.isArray(window.FETVA_DATA)) {
             fetvaData = window.FETVA_DATA;
+
+            // Merge extra data if exists
+            if (window.EXTRA_DATA && Array.isArray(window.EXTRA_DATA)) {
+                fetvaData = [...fetvaData, ...window.EXTRA_DATA];
+                console.log('➕ Ek veri birleştirildi:', window.EXTRA_DATA.length, 'ek kayıt');
+            }
+
             console.log('✅ Veri yüklendi:', fetvaData.length, 'kayıt');
         } else {
             console.error('❌ Veri yüklenemedi');
@@ -1413,6 +1420,9 @@ Bu kaynaklara dayanarak soruyu cevapla.`;
                 <button class="feedback-btn regenerate-btn" data-query="${escapeHtml(query)}" title="Yeniden Oluştur">
                     <img src="Resimler/refresh.png" alt="Yeniden Oluştur" class="feedback-icon">
                 </button>
+                <button class="feedback-btn whatsapp-share-btn" onclick="window.open('https://wa.me/?text=${encodeURIComponent('Fetva AI: ' + query + '\n\nCevap: ' + aiResponse)}', '_blank')" title="WhatsApp ile Paylaş">
+                    <img src="Resimler/whatsapp icon.png" alt="WhatsApp" class="feedback-icon">
+                </button>
                 <button class="feedback-btn report-btn" data-query="${escapeHtml(query)}" data-response="${escapeHtml(aiResponse)}" title="Hata Bildir">
                     <img src="Resimler/hata_icon.png" alt="Hata Bildir" class="feedback-icon">
                 </button>
@@ -1465,7 +1475,7 @@ Bu kaynaklara dayanarak soruyu cevapla.`;
      */
     function addLaubaliComment(text) {
         const randomSoz = FUNNY_ENDINGS[Math.floor(Math.random() * FUNNY_ENDINGS.length)];
-        return text + `\n\n---\n*🎭 AI'ın Notu:* ${randomSoz} 🙃🫠😤`;
+        return text + `\n\n---\n**🎭🤜🤌 Dostça Bir Uyarı:** ${randomSoz} 🙃🫠😤`;
     }
 
     /**
