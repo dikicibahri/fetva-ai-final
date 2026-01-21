@@ -717,8 +717,8 @@ _Bu yanıt Fetva AI uygulamasından alınmıştır. Kesin hükümler için müft
                     <button class="share-copy-btn" onclick="navigator.clipboard.writeText('${shareUrl}'); this.textContent='✅ Kopyalandı';">📋 Kopyala</button>
                 </div>
                 <div class="share-actions">
-                    <button class="share-whatsapp-btn" onclick="window.open('https://wa.me/?text=${encodeURIComponent('Fetva AI Sohbeti: ' + shareUrl)}', '_blank')">
-                        WhatsApp'ta Paylaş
+                    <button class="share-native-btn" id="share-native-btn">
+                        📤 Paylaş
                     </button>
                 </div>
             </div>
@@ -726,6 +726,29 @@ _Bu yanıt Fetva AI uygulamasından alınmıştır. Kesin hükümler için müft
 
         overlay.querySelector('.share-dialog-close').onclick = () => overlay.remove();
         overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+
+        // Native share button - uses Web Share API
+        const shareBtn = overlay.querySelector('#share-native-btn');
+        shareBtn.onclick = async () => {
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: 'Fetva AI Sohbeti',
+                        text: 'Bu sohbete göz at:',
+                        url: shareUrl
+                    });
+                    overlay.remove();
+                } catch (err) {
+                    if (err.name !== 'AbortError') {
+                        console.error('Share failed:', err);
+                    }
+                }
+            } else {
+                // Fallback - copy to clipboard
+                await navigator.clipboard.writeText(shareUrl);
+                shareBtn.textContent = '✅ Link Kopyalandı!';
+            }
+        };
 
         document.body.appendChild(overlay);
     }

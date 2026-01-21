@@ -136,6 +136,15 @@ body {
     height: 100vh;
     width: 100%;
     overflow: hidden;
+    transition: margin-left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* When sidebar is open on desktop, shift main content right */
+@media (min-width: 769px) {
+    .app-layout.sidebar-open {
+        margin-left: 300px;
+        /* Same as sidebar width */
+    }
 }
 
 .app-container {
@@ -3081,20 +3090,22 @@ input:checked+.slider:before {
     gap: 0.5rem;
 }
 
-.share-whatsapp-btn {
+.share-native-btn {
     flex: 1;
     padding: 0.75rem;
-    background: #25d366;
+    background: linear-gradient(135deg, var(--primary-green), var(--primary-green-light));
     color: white;
     border: none;
     border-radius: var(--radius-md);
     cursor: pointer;
     font-weight: 500;
+    font-size: 0.95rem;
     transition: all var(--transition-fast);
 }
 
-.share-whatsapp-btn:hover {
-    background: #20bd5a;
+.share-native-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
 }
 
 /* Shared Chat Display */
