@@ -17,9 +17,7 @@ export default function handler(req, res) {
         return;
     }
 
-    // Groq API Configuration
-    const GROQ_HOST = 'api.groq.com';
-    const GROQ_PATH = '/openai/v1/chat/completions';
+    const GROQ_API = 'api.groq.com';
     const apiKey = process.env.GROQ_API_KEY;
 
     if (!apiKey) {
@@ -32,8 +30,8 @@ export default function handler(req, res) {
     const requestBody = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
 
     const options = {
-        hostname: GROQ_HOST,
-        path: GROQ_PATH,
+        hostname: GROQ_API,
+        path: '/openai/v1/chat/completions',
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
