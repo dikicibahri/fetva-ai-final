@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
@@ -12,8 +13,8 @@ app.use(express.static(__dirname));
 
 // API YOLU (İstek buraya gelecek)
 app.post('/api/chat', async (req, res) => {
-    // Vercel'de tanımlanacak anahtar ismi: OPENROUTER_API_KEY
-    const apiKey = process.env.OPENROUTER_API_KEY || process.env.GROQ_API_KEY;
+    // Vercel'de ve .env dosyasında tanımlanacak anahtar ismi: OPENROUTER_API_KEY
+    const apiKey = process.env.OPENROUTER_API_KEY;
 
     try {
         const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
