@@ -6,9 +6,12 @@
     "dev": "node server.js"
   },
   "dependencies": {
+<<<<<<< Updated upstream
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
+=======
+>>>>>>> Stashed changes
     "node-fetch": "^2.6.7"
   }
 }

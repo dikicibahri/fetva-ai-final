@@ -17,11 +17,13 @@ export default function handler(req, res) {
         return;
     }
 
-    const GROQ_API = 'api.groq.com';
-    const apiKey = process.env.GROQ_API_KEY;
+    // OpenRouter Configuration
+    const OPENROUTER_HOST = 'openrouter.ai';
+    const OPENROUTER_PATH = '/api/v1/chat/completions';
+    const apiKey = process.env.OPENROUTER_API_KEY;
 
     if (!apiKey) {
-        console.error('Error: GROQ_API_KEY is not set in environment variables.');
+        console.error('Error: OPENROUTER_API_KEY is not set in environment variables.');
         res.status(500).json({ error: 'Server configuration error: Missing API Key' });
         return;
     }
@@ -30,19 +32,21 @@ export default function handler(req, res) {
     const requestBody = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
 
     const options = {
-        hostname: GROQ_API,
-        path: '/openai/v1/chat/completions',
+        hostname: OPENROUTER_HOST,
+        path: OPENROUTER_PATH,
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`
+            'Authorization': `Bearer ${apiKey}`,
+            'HTTP-Referer': 'https://fetva-ai.vercel.app', // Required by OpenRouter
+            'X-Title': 'Fetva AI' // Optional but recommended
         }
     };
 
     const proxyReq = https.request(options, proxyRes => {
-        // Forward the status code and headers from Groq
+        // Forward the status code and headers from OpenRouter
         res.writeHead(proxyRes.statusCode, proxyRes.headers);
-        
+
         // Pipe the response back to client
         proxyRes.pipe(res);
     });
@@ -54,7 +58,7 @@ export default function handler(req, res) {
         }
     });
 
-    // Send the body to Groq
+    // Send the body to OpenRouter
     proxyReq.write(requestBody);
     proxyReq.end();
 }
