@@ -7,7 +7,7 @@
 const API_CONFIG = {
     apiKey: '', // BURASI BOMBOŞ KALMALI!
     baseUrl: '/api/chat', // Artık bizim kendi sunucumuza soracağız
-    model: 'llama-3.3-70b-versatile'
+    model: 'meta-llama/llama-3.3-70b-instruct' // OpenRouter Model ID
 };
 // Komik mod için örnek laubali cevaplar
 const FUNNY_ENDINGS = [
