@@ -12,14 +12,17 @@ app.use(express.static(__dirname));
 
 // API YOLU (İstek buraya gelecek)
 app.post('/api/chat', async (req, res) => {
-    const apiKey = process.env.GROQ_API_KEY;
+    // Vercel'de tanımlanacak anahtar ismi: OPENROUTER_API_KEY
+    const apiKey = process.env.OPENROUTER_API_KEY || process.env.GROQ_API_KEY;
 
     try {
-        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`
+                'Authorization': `Bearer ${apiKey}`,
+                'HTTP-Referer': 'https://fetva-ai.vercel.app', // OpenRouter için gerekli
+                'X-Title': 'Fetva AI'
             },
             body: JSON.stringify(req.body)
         });
