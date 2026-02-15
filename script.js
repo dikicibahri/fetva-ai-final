@@ -74,8 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setupAuthListener();
         setupUserDropdown();
         checkQueryLimit();
-        showDisclaimerModal();
-        initFloatingQuestions();
+        showDisclaimerModal(); // İlk girişte yasal uyarı göster
 
         // Init sidebar toggle state
         const sidebarFunnyToggle = document.getElementById('sidebar-funny-mode');
@@ -601,111 +600,44 @@ _Bu yanıt Fetva AI uygulamasından alınmıştır. Kesin hükümler için müft
     }
 
     /**
-     * Share full conversation (general share - navigator.share or clipboard fallback)
+     * Share full conversation to WhatsApp
      */
     function shareFullConversation() {
+        // Get all Q&A pairs from the results area
         const queries = document.querySelectorAll('.query-bubble');
-        const responsesContent = document.querySelectorAll('.ai-response-card .ai-response-content');
+        const responses = document.querySelectorAll('.ai-response-card .response-content');
 
         if (queries.length === 0) {
             showToast('Paylaşılacak sohbet bulunamadı');
             return;
         }
 
-        let conversationText = `📿 Fetva AI - Sohbet Geçmişi\n`;
-        conversationText += `${new Date().toLocaleDateString('tr-TR')}\n\n`;
+        let conversationText = `*📿 Fetva AI - Sohbet Geçmişi*\n`;
+        conversationText += `_${new Date().toLocaleDateString('tr-TR')}_\n\n`;
         conversationText += `═══════════════════\n\n`;
 
         queries.forEach((query, index) => {
+            // Get query text (remove button icons)
             const queryText = query.textContent.trim().replace(/\s+/g, ' ');
-            const responseEl = responsesContent[index];
+
+            // Get response text
+            const responseEl = responses[index];
             const responseText = responseEl ? responseEl.textContent.trim() : '';
 
-            conversationText += `${index + 1}. Soru: ${queryText}\n\n`;
-            conversationText += `Cevap: ${responseText}\n\n`;
+            conversationText += `*${index + 1}. Soru:*\n${queryText}\n\n`;
+            conversationText += `*Cevap:*\n${responseText}\n\n`;
             conversationText += `───────────────────\n\n`;
         });
 
-        conversationText += `Bu sohbet Fetva AI uygulamasından paylaşılmıştır.\n`;
-        conversationText += `Kesin hükümler için müftülüklere danışınız.\n`;
+        conversationText += `_Bu sohbet Fetva AI uygulamasından paylaşılmıştır._\n`;
+        conversationText += `_Kesin hükümler için müftülüklere danışınız._\n`;
         conversationText += `🔗 fetva-ai.vercel.app`;
 
-        // Try native share API first (mobile & modern browsers)
-        if (navigator.share) {
-            navigator.share({
-                title: '📿 Fetva AI - Sohbet',
-                text: conversationText
-            }).then(() => {
-                showToast('Sohbet paylaşıldı ✓');
-            }).catch((err) => {
-                if (err.name !== 'AbortError') {
-                    copyConversationToClipboard(conversationText);
-                }
-            });
-        } else {
-            copyConversationToClipboard(conversationText);
-        }
-    }
+        const encodedMessage = encodeURIComponent(conversationText);
+        const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+        window.open(whatsappUrl, '_blank');
 
-    /**
-     * Copy conversation text to clipboard as fallback
-     */
-    function copyConversationToClipboard(text) {
-        navigator.clipboard.writeText(text).then(() => {
-            showToast('Sohbet panoya kopyalandı! Dilediğiniz yerde paylaşabilirsiniz ✓');
-        }).catch(() => {
-            showToast('Kopyalama başarısız oldu');
-        });
-    }
-
-    /**
-     * Floating Questions - Sample questions that float on the empty screen
-     */
-    const FLOATING_QUESTIONS = [
-        'Oruçluyken diş fırçalanır mı?',
-        'Namazı bozan durumlar nelerdir?',
-        'Cünüplüyken oruç tutulur mu?',
-        'Vitir namazı nasıl kılınır?',
-        'Zekat kimlere verilir?',
-        'Kadınlar cuma namazı kılabilir mi?',
-        'Seferde namaz nasıl kılınır?',
-        'Abdestsiz Kur\'an okunur mu?'
-    ];
-
-    function initFloatingQuestions() {
-        const container = document.getElementById('floating-questions-container');
-        if (!container) return;
-
-        container.innerHTML = '';
-
-        FLOATING_QUESTIONS.forEach((question, index) => {
-            const chip = document.createElement('button');
-            chip.className = 'floating-question-chip';
-            chip.textContent = question;
-            chip.style.animationDelay = `${index * 0.6}s`;
-
-            // Clicking a floating question fills the search input and submits
-            chip.addEventListener('click', () => {
-                searchInput.value = question;
-                performSearch();
-            });
-
-            container.appendChild(chip);
-        });
-    }
-
-    function hideFloatingQuestions() {
-        const container = document.getElementById('floating-questions-container');
-        if (container) {
-            container.style.display = 'none';
-        }
-    }
-
-    function showFloatingQuestions() {
-        const container = document.getElementById('floating-questions-container');
-        if (container) {
-            container.style.display = 'flex';
-        }
+        showToast('Sohbet WhatsApp\'a aktarılıyor...');
     }
 
     /**
@@ -890,9 +822,8 @@ _Bu yanıt Fetva AI uygulamasından alınmıştır. Kesin hükümler için müft
         // Clear input after sending
         searchInput.value = '';
 
-        // Hide welcome section and floating questions
+        // Hide welcome, show loading
         welcomeSection.style.display = 'none';
-        hideFloatingQuestions();
         showLoading();
 
         try {
@@ -1426,9 +1357,8 @@ Bu kaynaklara dayanarak soruyu cevapla.`;
             shareBtn.style.display = 'none';
         }
 
-        // Show welcome section and floating questions
+        // Show welcome section
         welcomeSection.style.display = 'flex';
-        showFloatingQuestions();
 
         // Clear conversation history
         conversationHistory = [];
@@ -1701,7 +1631,6 @@ Bu kaynaklara dayanarak soruyu cevapla.`;
         lastSources = [];
         resultsArea.innerHTML = '';
         welcomeSection.style.display = 'none';
-        hideFloatingQuestions();
 
         // Load messages for this chat
         await loadChatMessages(chatId);
