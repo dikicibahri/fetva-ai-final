@@ -779,10 +779,17 @@ _Bu yanıt Fetva AI uygulamasından alınmıştır. Kesin hükümler için müft
             ];
             const randomResponse = gratitudeResponses[Math.floor(Math.random() * gratitudeResponses.length)];
 
-            // Clear input and show response
+            // Display user message immediately
+            displayUserMessage(query);
+
+            // Clear input
             searchInput.value = '';
             welcomeSection.style.display = 'none';
-            displayAIResponse(query, randomResponse, [], true);
+
+            // Show response with slight delay for realism
+            setTimeout(() => {
+                displayAssistantMessage(randomResponse, [], query);
+            }, 500);
 
             // Add to conversation history
             conversationHistory.push(
@@ -809,6 +816,9 @@ _Bu yanıt Fetva AI uygulamasından alınmıştır. Kesin hükümler için müft
         lastQuery = query;
         canEditLastQuery = true;
 
+        // Display user message immediately
+        displayUserMessage(query);
+
         // Clear input after sending
         searchInput.value = '';
 
@@ -825,7 +835,16 @@ _Bu yanıt Fetva AI uygulamasından alınmıştır. Kesin hükümler için müft
             }
 
             const aiResponse = await getAIResponse(query, relevantResults);
-            displayAIResponse(query, aiResponse, relevantResults);
+
+            // Remove loading indicator is handled within displayAssistantMessage (via replacement) or explicit check
+            // Actually my new displayAssistantMessage doesn't call removeLoading explicitly unless I add it or call it here.
+            // The previous code had showLoading() and then displayAIResponse removed it.
+            // My new displayAssistantMessage DOES remove it if I copied logic correctly? 
+            // Let's explicitly remove it here to be safe and clear.
+            const loadingIndicator = resultsArea.querySelector('.typing-indicator');
+            if (loadingIndicator) loadingIndicator.remove();
+
+            displayAssistantMessage(aiResponse, relevantResults, query);
 
             // Store for follow-up
             lastSources = relevantResults;
@@ -1182,29 +1201,14 @@ Bu kaynaklara dayanarak soruyu cevapla.`;
     }
 
     /**
-     * Display AI response with copy/edit buttons
-     * Appends to existing conversation instead of clearing
+     * Display User Message
      */
-    function displayAIResponse(query, aiResponse, sources, isFirstMessage = false) {
-        // Show share conversation button
-        const resultsHeader = document.getElementById('results-header');
-        if (resultsHeader) {
-            resultsHeader.style.display = 'flex';
-        }
-
-        // Only clear on first message of a new conversation
-        if (isFirstMessage || resultsArea.querySelector('.typing-indicator')) {
-            // Remove loading indicator if present
-            const loadingIndicator = resultsArea.querySelector('.typing-indicator');
-            if (loadingIndicator) loadingIndicator.remove();
-        }
-
+    function displayUserMessage(query) {
         // Remove edit buttons from ALL previous queries (only last one should be editable)
         document.querySelectorAll('.query-bubble .edit-btn').forEach(btn => {
             btn.remove();
         });
 
-        // User query with copy button (always) and edit button (only for latest)
         const queryDisplay = document.createElement('div');
         queryDisplay.className = 'query-display';
         queryDisplay.innerHTML = `
@@ -1226,16 +1230,33 @@ Bu kaynaklara dayanarak soruyu cevapla.`;
         `;
         resultsArea.appendChild(queryDisplay);
 
-        // AI Response with copy button
+        // Auto-scroll to bottom
+        setTimeout(() => {
+            queryDisplay.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }, 100);
+    }
+
+    /**
+     * Display AI Response
+     */
+    function displayAssistantMessage(aiResponse, sources, query) {
+        // Show share conversation button in header
+        const shareBtn = document.getElementById('share-conversation-btn');
+        if (shareBtn) {
+            shareBtn.style.display = 'flex';
+        }
+
         const responseCard = document.createElement('div');
         responseCard.className = 'ai-response-card';
 
         // Group sources by type
         const sourceGroups = {};
-        sources.forEach(s => {
-            if (!sourceGroups[s.source]) sourceGroups[s.source] = [];
-            sourceGroups[s.source].push(s.text);
-        });
+        if (sources && sources.length > 0) {
+            sources.forEach(s => {
+                if (!sourceGroups[s.source]) sourceGroups[s.source] = [];
+                sourceGroups[s.source].push(s.text);
+            });
+        }
 
         responseCard.innerHTML = `
             <div class="ai-response-header">
@@ -1253,60 +1274,68 @@ Bu kaynaklara dayanarak soruyu cevapla.`;
             <div class="ai-response-content">${formatResponse(funnyMode ? addLaubaliComment(aiResponse) : aiResponse)}</div>`;
 
         // Check for Hadith content
-        const hadithSource = sources.find(s => s.source.includes('Hadislerle İslam'));
-        if (hadithSource) {
-            responseCard.innerHTML += `
-                <div class="hadith-card">
-                    <div class="hadith-header">
-                        <span class="hadith-icon">ﷺ</span>
-                        <span class="hadith-title">Hadis-i Şerif & Sünnet</span>
+        if (sources) {
+            const hadithSource = sources.find(s => s.source.includes('Hadislerle İslam'));
+            if (hadithSource) {
+                responseCard.innerHTML += `
+                    <div class="hadith-card">
+                        <div class="hadith-header">
+                            <span class="hadith-icon">ﷺ</span>
+                            <span class="hadith-title">Hadis-i Şerif & Sünnet</span>
+                        </div>
+                        <div class="hadith-content">
+                            "${truncateText(hadithSource.text, 500)}"
+                        </div>
                     </div>
-                    <div class="hadith-content">
-                        "${truncateText(hadithSource.text, 500)}"
-                    </div>
-                </div>
-            `;
-        }
+                `;
+            }
 
-        responseCard.innerHTML += `
-            <div class="ai-response-sources">
-                <div class="sources-header collapsed" onclick="this.classList.toggle('collapsed'); this.nextElementSibling.classList.toggle('collapsed');">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M19 9l-7 7-7-7" />
-                    </svg>
-                    <span>Kaynaklar</span>
-                </div>
-                <div class="sources-list collapsed">
-                    ${Object.entries(sourceGroups).map(([source, texts]) => `
-                        <div class="source-group">
-                            <div class="source-group-title">${escapeHtml(source)}</div>
-                            ${texts.slice(0, 2).map(t => `
-                                <div class="source-item">
-                                    <span class="source-text">${truncateText(t, 120)}</span>
+            if (Object.keys(sourceGroups).length > 0) {
+                responseCard.innerHTML += `
+                    <div class="ai-response-sources">
+                        <div class="sources-header collapsed" onclick="this.classList.toggle('collapsed'); this.nextElementSibling.classList.toggle('collapsed');">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M19 9l-7 7-7-7" />
+                            </svg>
+                            <span>Kaynaklar</span>
+                        </div>
+                        <div class="sources-list collapsed">
+                            ${Object.entries(sourceGroups).map(([source, texts]) => `
+                                <div class="source-group">
+                                    <div class="source-group-title">${escapeHtml(source)}</div>
+                                    ${texts.slice(0, 2).map(t => `
+                                        <div class="source-item">
+                                            <span class="source-text">${truncateText(t, 120)}</span>
+                                        </div>
+                                    `).join('')}
                                 </div>
                             `).join('')}
                         </div>
-                    `).join('')}
-                </div>
-            </div>
+                    </div>`;
+            }
+        }
+
+        // Add actions
+        responseCard.innerHTML += `
             <div class="response-actions">
-                <button class="feedback-btn like-btn" data-query="${escapeHtml(query)}" data-response="${escapeHtml(aiResponse)}" title="Faydalı">
+                <button class="feedback-btn like-btn" data-query="${escapeHtml(query || '')}" data-response="${escapeHtml(aiResponse)}" title="Faydalı">
                     <img src="Resimler/begenme_icon.png" alt="Faydalı" class="feedback-icon">
                 </button>
-                <button class="feedback-btn dislike-btn" data-query="${escapeHtml(query)}" data-response="${escapeHtml(aiResponse)}" title="Hatalı/Yetersiz">
+                <button class="feedback-btn dislike-btn" data-query="${escapeHtml(query || '')}" data-response="${escapeHtml(aiResponse)}" title="Hatalı/Yetersiz">
                     <img src="Resimler/begenmeme_icon.png" alt="Hatalı" class="feedback-icon">
                 </button>
-                <button class="feedback-btn regenerate-btn" data-query="${escapeHtml(query)}" title="Yeniden Oluştur">
+                <button class="feedback-btn regenerate-btn" data-query="${escapeHtml(query || '')}" title="Yeniden Oluştur">
                     <img src="Resimler/refresh.png" alt="Yeniden Oluştur" class="feedback-icon">
                 </button>
-                <button class="feedback-btn report-btn" data-query="${escapeHtml(query)}" data-response="${escapeHtml(aiResponse)}" title="Hata Bildir">
+                <button class="feedback-btn report-btn" data-query="${escapeHtml(query || '')}" data-response="${escapeHtml(aiResponse)}" title="Hata Bildir">
                     <img src="Resimler/hata_icon.png" alt="Hata Bildir" class="feedback-icon">
                 </button>
-                <button class="feedback-btn whatsapp-share-btn" data-query="${escapeHtml(query)}" data-response="${escapeHtml(aiResponse)}" title="WhatsApp ile Paylaş">
+                <button class="feedback-btn whatsapp-share-btn" data-query="${escapeHtml(query || '')}" data-response="${escapeHtml(aiResponse)}" title="WhatsApp ile Paylaş">
                     <img src="Resimler/whatsapp icon.png" alt="WhatsApp" class="whatsapp-icon">
                 </button>
             </div>
         `;
+
         resultsArea.appendChild(responseCard);
 
         // Auto-scroll to bottom smoothly
@@ -1323,9 +1352,9 @@ Bu kaynaklara dayanarak soruyu cevapla.`;
         resultsArea.innerHTML = '';
 
         // Hide share conversation button
-        const resultsHeader = document.getElementById('results-header');
-        if (resultsHeader) {
-            resultsHeader.style.display = 'none';
+        const shareBtn = document.getElementById('share-conversation-btn');
+        if (shareBtn) {
+            shareBtn.style.display = 'none';
         }
 
         // Show welcome section
@@ -1379,6 +1408,9 @@ Bu kaynaklara dayanarak soruyu cevapla.`;
         const existingLoader = resultsArea.querySelector('.typing-indicator');
         if (existingLoader) existingLoader.remove();
 
+        // Ensure buttons don't block
+        document.querySelectorAll('.edit-btn').forEach(btn => btn.disabled = true);
+
         // Append loading indicator (don't clear existing messages)
         const loader = document.createElement('div');
         loader.className = 'typing-indicator';
@@ -1388,6 +1420,9 @@ Bu kaynaklara dayanarak soruyu cevapla.`;
             <div class="dot"></div>
         `;
         resultsArea.appendChild(loader);
+
+        // Auto-scroll to bottom
+        loader.scrollIntoView({ behavior: 'smooth', block: 'end' });
     }
 
     /**
@@ -1628,45 +1663,20 @@ Bu kaynaklara dayanarak soruyu cevapla.`;
 
             messages.forEach(msg => {
                 if (msg.role === 'user') {
-                    // Display user query with edit button
-                    const queryDisplay = document.createElement('div');
-                    queryDisplay.className = 'query-display';
-                    queryDisplay.innerHTML = `
-                        <div class="query-bubble">
-                            ${escapeHtml(msg.content)}
-                            <button class="edit-btn" data-text="${escapeHtml(msg.content)}" title="Düzenle">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                                </svg>
-                            </button>
-                        </div>
-                    `;
-                    resultsArea.appendChild(queryDisplay);
-
+                    // Display user query
+                    displayUserMessage(msg.content);
                     // Add to conversation history
                     conversationHistory.push({ role: 'user', content: msg.content });
 
                 } else if (msg.role === 'assistant') {
                     // Display AI response
-                    const responseCard = document.createElement('div');
-                    responseCard.className = 'ai-response-card';
-                    responseCard.innerHTML = `
-                        <div class="ai-response-header">
-                            <div class="ai-avatar">
-                                <img src="Resimler/logo_fetva-ai.png" alt="Fetva AI" class="ai-avatar-img">
-                            </div>
-                            <span class="ai-name">Fetva AI</span>
-                            <button class="copy-btn" data-text="${escapeHtml(msg.content)}" title="Kopyala">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
-                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-                                </svg>
-                            </button>
-                        </div>
-                        <div class="ai-response-content">${formatResponse(msg.content)}</div>
-                    `;
-                    resultsArea.appendChild(responseCard);
+                    // Extract sources if saved in msg (structure check needed)
+                    // The saveMessageToFirestore structure has 'sources' in assistant message but 
+                    // getChatMessages returns standard message objects. 
+                    // If your dbService also returns sources, utilize them. 
+                    // Assuming for now msg.sources might exist or sourcesData.
+                    const sources = msg.sources || [];
+                    displayAssistantMessage(msg.content, sources, msg.associatedQuery || '');
 
                     // Add to conversation history
                     conversationHistory.push({ role: 'assistant', content: msg.content });
@@ -1676,6 +1686,12 @@ Bu kaynaklara dayanarak soruyu cevapla.`;
             // Keep only last 8 messages for context
             if (conversationHistory.length > 8) {
                 conversationHistory = conversationHistory.slice(-8);
+            }
+
+            // Show share button if messages exist
+            const shareBtn = document.getElementById('share-conversation-btn');
+            if (shareBtn && messages.length > 0) {
+                shareBtn.style.display = 'flex';
             }
         } catch (e) {
             console.error('Load messages error:', e);
@@ -1862,12 +1878,7 @@ Bu kaynaklara dayanarak soruyu cevapla.`;
         const loadingIndicator = resultsArea.querySelector('.typing-indicator');
         if (loadingIndicator) loadingIndicator.remove();
 
-        const queryDisplay = document.createElement('div');
-        queryDisplay.className = 'query-display';
-        queryDisplay.innerHTML = `
-            <div class="query-bubble">${escapeHtml(query)}</div>
-        `;
-        resultsArea.appendChild(queryDisplay);
+        // Note: User query is already displayed by performSearch
 
         const responseCard = document.createElement('div');
         responseCard.className = 'ai-response-card';

@@ -787,42 +787,6 @@ body {
 /* ==========================================
    Share Conversation Button
    ========================================== */
-.results-header {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 12px;
-}
-
-.share-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 14px;
-  background: linear-gradient(135deg, #f4f4f5, #e4e4e7);
-  color: #27272a;
-  border: 1px solid #d4d4d8;
-  border-radius: 999px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.25s ease;
-}
-
-.share-btn:hover {
-  background: linear-gradient(135deg, #e4e4e7, #d4d4d8);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
-.share-btn:active {
-  transform: translateY(0);
-  box-shadow: none;
-}
-
-.share-icon {
-  width: 16px;
-  height: 16px;
-}
 
 /* ==========================================
    Query Display (User's question)
@@ -1181,6 +1145,7 @@ body {
     border-radius: var(--radius-lg);
     border: 1px solid var(--border-color);
     width: fit-content;
+    margin-bottom: var(--space-lg);
 }
 
 .typing-indicator .dot {
