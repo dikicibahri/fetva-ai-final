@@ -3127,3 +3127,45 @@ input:checked+.slider:before {
     font-size: 1.25rem;
     margin: 0;
 }
+
+/* ==========================================
+   Source Not Found / KAYNAK_YOK Card
+   ========================================== */
+
+.source-not-found-card {
+    border-color: rgba(234, 179, 8, 0.3);
+    background: rgba(234, 179, 8, 0.05);
+}
+
+.source-not-found-content p:first-child {
+    font-size: 1.05rem;
+    margin-bottom: var(--space-md);
+}
+
+.edevlet-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    margin: var(--space-lg) 0;
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    color: white;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    transition: all var(--transition-fast);
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+}
+
+.edevlet-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(220, 38, 38, 0.4);
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.source-not-found-hint {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-top: var(--space-sm);
+}

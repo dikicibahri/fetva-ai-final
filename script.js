@@ -848,6 +848,19 @@ _Bu yanıt Fetva AI uygulamasından alınmıştır. Kesin hükümler için müft
             const loadingIndicator = resultsArea.querySelector('.typing-indicator');
             if (loadingIndicator) loadingIndicator.remove();
 
+            // Check if AI couldn't find the answer in sources
+            if (aiResponse.includes('[KAYNAK_YOK]')) {
+                displaySourceNotFound(query);
+
+                // Store for follow-up
+                lastSources = relevantResults;
+                conversationHistory.push(
+                    { role: 'user', content: query },
+                    { role: 'assistant', content: 'Bu konuda kaynaklarımda yeterli bilgi bulunamadı.' }
+                );
+                return;
+            }
+
             displayAssistantMessage(aiResponse, relevantResults, query);
 
             // Store for follow-up
@@ -1068,7 +1081,11 @@ _Bu yanıt Fetva AI uygulamasından alınmıştır. Kesin hükümler için müft
         const isCriticalTopic = criticalTopics.some(topic => queryLower.includes(topic));
         const isSensitiveTopic = isCriticalTopic || sensitiveTopics.some(topic => queryLower.includes(topic));
 
-        let systemPrompt = `Sen 'Fetva AI' isimli, fıkıh ve İslam hukuku konusunda uzmanlaşmış bir yapay zeka asistanısın.
+        let systemPrompt = `DİKKAT: Sen sadece sana 'KAYNAKLAR' kısmında verilen metinleri okuyup özetleyen bir asistansın.
+Eğer kullanıcının sorusunun cevabı KAYNAKLAR metninin içinde AÇIKÇA ve NET BİR ŞEKİLDE geçmiyorsa, KESİNLİKLE genel kültürünü kullanarak veya kendi kendine mantık yürüterek CEVAP VERME.
+Bu durumda, hiçbir açıklama yapmadan SADECE şu özel kodu yaz: [KAYNAK_YOK]
+
+Sen 'Fetva AI' isimli, fıkıh ve İslam hukuku konusunda uzmanlaşmış bir yapay zeka asistanısın.
 
 MUTLAK KURALLAR:
 
@@ -1193,7 +1210,7 @@ Bu kaynaklara dayanarak soruyu cevapla.`;
             body: JSON.stringify({
                 model: API_CONFIG.model,
                 messages: messages,
-                temperature: 0.7,
+                temperature: 0.2,
                 max_tokens: isCriticalTopic ? 1500 : (isSensitiveTopic ? 1000 : 700)
             })
         });
@@ -1872,6 +1889,36 @@ Bu kaynaklara dayanarak soruyu cevapla.`;
         document.querySelectorAll('.chat-item').forEach(item => {
             item.classList.remove('active');
         });
+    }
+
+    /**
+     * Display "Source Not Found" warning card with e-Devlet redirect
+     */
+    function displaySourceNotFound(query) {
+        const responseCard = document.createElement('div');
+        responseCard.className = 'ai-response-card source-not-found-card';
+        responseCard.innerHTML = `
+            <div class="ai-response-header">
+                <div class="ai-avatar">
+                    <img src="Resimler/logo_fetva-ai.png" alt="Fetva AI" class="ai-avatar-img">
+                </div>
+                <span class="ai-name">Fetva AI</span>
+            </div>
+            <div class="ai-response-content source-not-found-content">
+                <p>⚠️ <strong>Kaynak Dışı Soru / Derin Konu</strong></p>
+                <p>Sorduğunuz konu, mevcut veri tabanımızda (Diyanet Fetva, İlmihaller) net olarak yer almamaktadır veya derin fıkhi bir yorum gerektirmektedir. Yanlış bir yönlendirme yapmamak adına, lütfen bu soruyu doğrudan resmi makamlara iletin.</p>
+                <a href="https://www.turkiye.gov.tr/diyanet-isleri-dini-soru-sor" target="_blank" rel="noopener noreferrer" class="edevlet-btn">
+                    🏛️ e-Devlet Üzerinden Diyanet'e Sorun
+                </a>
+                <p class="source-not-found-hint">📞 Alternatif: <strong>ALO 190</strong> Diyanet Fetva Hattı</p>
+            </div>
+        `;
+        resultsArea.appendChild(responseCard);
+
+        // Auto-scroll
+        setTimeout(() => {
+            responseCard.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }, 100);
     }
 
     function displayNoResults(query) {
