@@ -7,7 +7,7 @@
 const API_CONFIG = {
     apiKey: '', // BURASI BOMBOŞ KALMALI!
     baseUrl: '/api/chat', // Artık bizim kendi sunucumuza soracağız
-    model: 'llama-3.3-70b-versatile' // Groq Model ID
+    model: 'llama3-70b-8192' // Groq Stable Model ID
 };
 // Komik mod için örnek laubali cevaplar
 const FUNNY_ENDINGS = [
@@ -768,7 +768,7 @@ _Bu yanıt Fetva AI uygulamasından alınmıştır. Kesin hükümler için müft
         // Gratitude/Thank you detection - respond without searching sources
         const gratitudePatterns = [
             /^(teşekkür|teşekkürler|sağol|sağ ol|eyvallah|eyv)/i,
-            /^(allah razı olsun|rabbim razı olsun|hayırlı günler)/i,
+            /^(allah razı olsun|allah razı gelsin|rabbim razı olsun|hayırlı günler)/i,
             /^(teşekkür ederim|teşekkür ederiz|çok teşekkürler)/i,
             /^(iyi günler|iyi akşamlar|kolay gelsin)/i,
             /^(allah'a emanet|haydi hoşçakal)/i
@@ -977,7 +977,7 @@ _Bu yanıt Fetva AI uygulamasından alınmıştır. Kesin hükümler için müft
         'fetva': 25,           // Diyanet Fetva Kitabı - EN GÜVENİLİR (Soru-Cevap)
         'bilmen': 20,          // Ömer Nasuhi Bilmen - Kapsamlı İlmihal
         'büyük islam': 20,     // Büyük İslam İlmihali
-        'ilmihal': 10,         // TDV İlmihalleri
+        'ilmihal': 20,         // TDV İlmihalleri
         'hadis': 5             // Hadisler (Destekleyici)
     };
 
