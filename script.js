@@ -536,13 +536,6 @@ document.addEventListener('DOMContentLoaded', () => {
             deleteChat(chatId);
         }
 
-        // WhatsApp share button
-        if (e.target.closest('.whatsapp-share-btn')) {
-            const btn = e.target.closest('.whatsapp-share-btn');
-            const query = btn.getAttribute('data-query');
-            const response = btn.getAttribute('data-response');
-            shareToWhatsApp(query, response);
-        }
 
         // Like button
         if (e.target.closest('.like-btn')) {
@@ -600,9 +593,9 @@ _Bu yanıt Fetva AI uygulamasından alınmıştır. Kesin hükümler için müft
     }
 
     /**
-     * Share full conversation to WhatsApp
+     * Share full conversation using Web Share API (universal share)
      */
-    function shareFullConversation() {
+    async function shareFullConversation() {
         // Get all Q&A pairs from the results area
         const queries = document.querySelectorAll('.query-bubble');
         const responses = document.querySelectorAll('.ai-response-card .response-content');
@@ -612,32 +605,47 @@ _Bu yanıt Fetva AI uygulamasından alınmıştır. Kesin hükümler için müft
             return;
         }
 
-        let conversationText = `*📿 Fetva AI - Sohbet Geçmişi*\n`;
-        conversationText += `_${new Date().toLocaleDateString('tr-TR')}_\n\n`;
+        let conversationText = `📿 Fetva AI - Sohbet Geçmişi\n`;
+        conversationText += `${new Date().toLocaleDateString('tr-TR')}\n\n`;
         conversationText += `═══════════════════\n\n`;
 
         queries.forEach((query, index) => {
-            // Get query text (remove button icons)
             const queryText = query.textContent.trim().replace(/\s+/g, ' ');
-
-            // Get response text
             const responseEl = responses[index];
             const responseText = responseEl ? responseEl.textContent.trim() : '';
 
-            conversationText += `*${index + 1}. Soru:*\n${queryText}\n\n`;
-            conversationText += `*Cevap:*\n${responseText}\n\n`;
+            conversationText += `${index + 1}. Soru:\n${queryText}\n\n`;
+            conversationText += `Cevap:\n${responseText}\n\n`;
             conversationText += `───────────────────\n\n`;
         });
 
-        conversationText += `_Bu sohbet Fetva AI uygulamasından paylaşılmıştır._\n`;
-        conversationText += `_Kesin hükümler için müftülüklere danışınız._\n`;
+        conversationText += `Bu sohbet Fetva AI uygulamasından paylaşılmıştır.\n`;
+        conversationText += `Kesin hükümler için müftülüklere danışınız.\n`;
         conversationText += `🔗 fetva-ai.vercel.app`;
 
-        const encodedMessage = encodeURIComponent(conversationText);
-        const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
-        window.open(whatsappUrl, '_blank');
+        // Try Web Share API first (universal share)
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: 'Fetva AI - Sohbet',
+                    text: conversationText
+                });
+                showToast('Sohbet paylaşıldı ✓');
+                return;
+            } catch (err) {
+                // User cancelled or share failed, fallback to clipboard
+                console.log('Web Share cancelled/failed:', err);
+            }
+        }
 
-        showToast('Sohbet WhatsApp\'a aktarılıyor...');
+        // Fallback: Copy to clipboard
+        try {
+            await navigator.clipboard.writeText(conversationText);
+            showToast('Sohbet panoya kopyalandı 📋');
+        } catch (err) {
+            showToast('Paylaşım hatası: Lütfen manuel olarak kopyalayın');
+            console.error('Share error:', err);
+        }
     }
 
     /**
@@ -836,11 +844,7 @@ _Bu yanıt Fetva AI uygulamasından alınmıştır. Kesin hükümler için müft
 
             const aiResponse = await getAIResponse(query, relevantResults);
 
-            // Remove loading indicator is handled within displayAssistantMessage (via replacement) or explicit check
-            // Actually my new displayAssistantMessage doesn't call removeLoading explicitly unless I add it or call it here.
-            // The previous code had showLoading() and then displayAIResponse removed it.
-            // My new displayAssistantMessage DOES remove it if I copied logic correctly? 
-            // Let's explicitly remove it here to be safe and clear.
+            // Remove loading indicator
             const loadingIndicator = resultsArea.querySelector('.typing-indicator');
             if (loadingIndicator) loadingIndicator.remove();
 
@@ -1329,9 +1333,6 @@ Bu kaynaklara dayanarak soruyu cevapla.`;
                 </button>
                 <button class="feedback-btn report-btn" data-query="${escapeHtml(query || '')}" data-response="${escapeHtml(aiResponse)}" title="Hata Bildir">
                     <img src="Resimler/hata_icon.png" alt="Hata Bildir" class="feedback-icon">
-                </button>
-                <button class="feedback-btn whatsapp-share-btn" data-query="${escapeHtml(query || '')}" data-response="${escapeHtml(aiResponse)}" title="WhatsApp ile Paylaş">
-                    <img src="Resimler/whatsapp icon.png" alt="WhatsApp" class="whatsapp-icon">
                 </button>
             </div>
         `;
