@@ -7,7 +7,7 @@
 const API_CONFIG = {
     apiKey: '', // BURASI BOMBOŞ KALMALI!
     baseUrl: '/api/chat', // Artık bizim kendi sunucumuza soracağız
-    model: 'llama3-70b-8192' // Groq Stable Model ID
+    model: 'llama-3.3-70b-versatile' // Groq Model ID
 };
 // Komik mod için örnek laubali cevaplar
 const FUNNY_ENDINGS = [

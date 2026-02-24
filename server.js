@@ -27,15 +27,8 @@ app.post('/api/chat', async (req, res) => {
         });
 
         const data = await response.json();
-
-        if (!response.ok) {
-            console.error('Groq API Hatası:', JSON.stringify(data));
-            return res.status(response.status).json({ error: data.error?.message || 'API Hatası' });
-        }
-
-        res.status(200).json(data);
+        res.status(response.status).json(data);
     } catch (error) {
-        console.error('Sunucu Hatası:', error);
         res.status(500).json({ error: "Sunucu hatası: " + error.message });
     }
 });
